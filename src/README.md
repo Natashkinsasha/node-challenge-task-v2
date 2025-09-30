@@ -53,7 +53,7 @@ npm test
 
 - **models/**: Contains the Token and TokenPriceUpdateMessage classes
 - **data/**: Contains the database context and seeder
-- **services/**: Contains the MockPriceService and TokenPriceUpdateService
-- **kafka/**: Contains the KafkaProducerService
+- **services/**: Contains the MockTokenPriceAdapter and TokenPriceUpdateService
+- **kafka/**: Contains the TokenPriceProducer
 - **migrations/**: Contains database migrations
 - **test/**: Contains integration tests using Testcontainers

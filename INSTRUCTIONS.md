@@ -59,7 +59,7 @@ docker compose down -v
 
 - **src/models/**: Contains the Token and TokenPriceUpdateMessage classes
 - **src/data/**: Contains the database context and seeder
-- **src/services/**: Contains the MockPriceService and TokenPriceUpdateService
-- **src/kafka/**: Contains the KafkaProducerService
+- **src/services/**: Contains the MockTokenPriceAdapter and TokenPriceUpdateService
+- **src/kafka/**: Contains the TokenPriceProducer
 - **src/migrations/**: Contains database migrations
 - **src/test/**: Contains integration tests using Testcontainers
