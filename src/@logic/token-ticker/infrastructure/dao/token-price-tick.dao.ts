@@ -1,6 +1,6 @@
 import {InjectDrizzle} from "@knaadh/nestjs-drizzle-postgres";
 import {Injectable} from "@nestjs/common";
-import {NodePgDatabase} from "drizzle-orm/node-postgres";
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as tables from "../table";
 
 
@@ -8,7 +8,7 @@ import * as tables from "../table";
 export class TokenPriceTickDao{
 
     constructor(
-        @InjectDrizzle('DB') private readonly db: NodePgDatabase<typeof tables>
+        @InjectDrizzle('DB') private readonly db: PostgresJsDatabase<typeof tables>
     ) {}
 
     public async upsert(

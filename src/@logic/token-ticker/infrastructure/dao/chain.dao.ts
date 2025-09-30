@@ -1,6 +1,7 @@
 import {InjectDrizzle} from "@knaadh/nestjs-drizzle-postgres";
 import {Injectable} from "@nestjs/common";
-import {NodePgDatabase} from "drizzle-orm/node-postgres";
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { desc } from 'drizzle-orm';
 
 import * as tables from "../table";
 
@@ -8,7 +9,7 @@ import * as tables from "../table";
 export class ChainDao{
 
     constructor(
-        @InjectDrizzle('DB') private readonly db: NodePgDatabase<typeof tables>
+        @InjectDrizzle('DB') private readonly db: PostgresJsDatabase<typeof tables>
     ) {}
 
     public async upsert(
@@ -27,5 +28,18 @@ export class ChainDao{
             .returning();
 
         return row;
+    }
+
+    public async findPageSortedByCreatedAt(params: {
+        limit: number;
+        offset: number;
+    }): Promise<typeof tables.chainTable.$inferSelect[]> {
+        const { limit, offset } = params;
+        return this.db
+            .select()
+            .from(tables.chainTable)
+            .orderBy(desc(tables.chainTable.createdAt))
+            .limit(limit)
+            .offset(offset);
     }
 }

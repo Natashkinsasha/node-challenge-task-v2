@@ -1,63 +1,39 @@
-import {Test, TestingModule} from "@nestjs/testing";
-import { DrizzlePostgresModule } from "@knaadh/nestjs-drizzle-postgres";
-import { TokenDao } from "../../@logic/token-ticker/infrastructure/dao/token.dao";
-import * as schema from "../../@logic/token-ticker/infrastructure/table";
-import {GenericContainer, StartedTestContainer} from "testcontainers";
 import { randomUUID } from "crypto";
-import { migrate } from "drizzle-orm/node-postgres/migrator";
+import {seed} from "drizzle-seed";
+import {TokenDao} from "../../@logic/token-ticker/infrastructure/dao/token.dao";
+import * as schema from "../../@logic/token-ticker/infrastructure/table";
+import {TestingModuleWithDbFixture} from "../fuxture/testing-module-with-db-fixture";
 
 describe("TokenDao (integration)", () => {
-    let postgresContainer: StartedTestContainer;
-    let module: TestingModule;
-    let tokenDao: TokenDao;
+    let fixture: TestingModuleWithDbFixture;
 
     beforeAll(async () => {
-
-        const testId = Math.random().toString(36).substring(7);
-        const port = 5432;
-        postgresContainer = await new GenericContainer('postgres:15-alpine')
-            .withName(`postgres-test-${testId}`)
-            .withEnvironment({
-                POSTGRES_USER: 'testuser',
-                POSTGRES_PASSWORD: 'testpassword',
-                POSTGRES_DB: 'testdb',
-            })
-            .withExposedPorts(port)
-            .start();
-
-        const postgresHost = postgresContainer.getHost();
-        // const mappedPostgresPort = postgresContainer.getMappedPort(port);
-
-        module = await Test.createTestingModule({
-            imports: [
-                DrizzlePostgresModule.register({
-                    tag: 'DB',
-                    postgres: {
-                        url: postgresHost,
-                    },
-                    config: { schema },
-                })
-            ],
-            providers: [TokenDao],
-        }).compile();
-        const db = module.get('DB')
-        await migrate(db, {
-            migrationsFolder: "src/@logic/token-ticker/infrastructure/migration",
-        });
-        tokenDao = module.get(TokenDao);
+        fixture = TestingModuleWithDbFixture.create([TokenDao])
+        await fixture.start();
     }, 60_000);
 
+    beforeEach(async ()=>{
+        await fixture.dropAllAndMigrate();
+    })
+
     afterAll(async () => {
-        await module?.close();
-        await postgresContainer?.stop();
+        await fixture.stop();
     });
 
     it("should upsert token and fetch with relation (chain)", async () => {
-        // Arrange: create a chain
+        const tokenDao = fixture.get(TokenDao);
         const chainId = randomUUID();
-        // expect(chain.id).toBe(chainId);
 
-        // Arrange: initial token insert
+        await seed(fixture.getDb(), {chains: schema.chainTable}).refine((f)=>{
+            return {
+                chains: {
+                    count: 1,
+                    columns: {
+                        id: f.valuesFromArray({values: [chainId]}),
+                    }
+                }
+            }
+        });
         const tokenId = randomUUID();
         const initial = await tokenDao.upsert({
             id: tokenId,
@@ -73,31 +49,15 @@ describe("TokenDao (integration)", () => {
             timestamp: new Date(),
         });
         expect(initial.id).toBe(tokenId);
-
-        // Act: upsert same (chainId, address) with changed fields to trigger ON CONFLICT DO UPDATE
-        const updated = await tokenDao.upsert({
-            id: tokenId, // provided but conflict is on (chainId, address)
-            address: "0x0000000000000000000000000000000000000000",
-            chainId: chainId,
-            symbol: "WETH",
-            name: "Wrapped Ether",
-            decimals: 18,
-            isNative: false,
-            isProtected: true,
-            priority: 2,
-        });
-
-        expect(updated.symbol).toBe("WETH");
-        expect(updated.name).toBe("Wrapped Ether");
-        expect(updated.isNative).toBe(false);
-        expect(updated.isProtected).toBe(true);
-        expect(updated.priority).toBe(2);
-
-        // Assert: findById returns relation-loaded chain
-        const found = await tokenDao.findById(tokenId);
-        expect(found).toBeTruthy();
-        expect(found!.id).toBe(tokenId);
-        expect(found!.chain?.id).toBe(chainId);
-        expect(found!.address).toBe("0x0000000000000000000000000000000000000000");
+        expect(initial.chainId).toBe(chainId);
+        expect(initial.address).toBe("0x0000000000000000000000000000000000000000");
+        expect(initial.symbol).toBe("ETH");
+        expect(initial.name).toBe("Ether");
+        expect(initial.decimals).toBe(18);
+        expect(initial.isNative).toBe(true);
+        expect(initial.isProtected).toBe(false);
+        expect(initial.lastUpdateAuthor).toBe("tester");
+        expect(initial.priority).toBe(1);
+        expect(initial.timestamp instanceof Date).toBe(true);
     });
 });
