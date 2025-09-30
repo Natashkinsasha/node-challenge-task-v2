@@ -4,10 +4,9 @@ import { TokenWithChain } from "../../infrastructure/model/token-with-chain";
 export class Token {
   constructor(private readonly tokenWithChain: TokenWithChain) {}
 
-
-    public getId(): string{
-      return this.tokenWithChain.id;
-    }
+  public getId(): string {
+    return this.tokenWithChain.id;
+  }
 
   public getTokenInfo(): TokenInfo {
     return TokenInfoSchema.parse({

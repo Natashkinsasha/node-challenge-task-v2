@@ -1,20 +1,17 @@
-import { InjectDrizzle } from "@knaadh/nestjs-drizzle-postgres";
 import { Injectable } from "@nestjs/common";
 import { eq } from "drizzle-orm";
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { AppDrizzleTransactionHost } from "../../../../@shared/shared-cls/app-drizzle-transaction-host";
 
 import * as tables from "../table";
 
 @Injectable()
 export class TokenDao {
-  constructor(
-    @InjectDrizzle('DB') private readonly db: PostgresJsDatabase<typeof tables>
-  ) {}
+  constructor(private readonly txHost: AppDrizzleTransactionHost) {}
 
   public async upsert(
     data: typeof tables.tokenTable.$inferInsert
   ): Promise<typeof tables.tokenTable.$inferSelect> {
-    const [row] = await this.db
+    const [row] = await this.txHost.tx
       .insert(tables.tokenTable)
       .values(data)
       .onConflictDoUpdate({
@@ -35,7 +32,7 @@ export class TokenDao {
   }
 
   public async findById(id: string) {
-    return this.db.query.tokenTable.findFirst({
+    return this.txHost.tx.query.tokenTable.findFirst({
       where: eq(tables.tokenTable.id, id),
       with: {
         chain: true,

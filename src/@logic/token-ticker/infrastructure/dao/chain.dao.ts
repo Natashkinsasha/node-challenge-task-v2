@@ -1,45 +1,41 @@
-import {InjectDrizzle} from "@knaadh/nestjs-drizzle-postgres";
-import {Injectable} from "@nestjs/common";
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { desc } from 'drizzle-orm';
+import { Injectable } from "@nestjs/common";
+import { desc } from "drizzle-orm";
+import { AppDrizzleTransactionHost } from "../../../../@shared/shared-cls/app-drizzle-transaction-host";
 
 import * as tables from "../table";
 
 @Injectable()
-export class ChainDao{
+export class ChainDao {
+  constructor(private readonly txHost: AppDrizzleTransactionHost) {}
 
-    constructor(
-        @InjectDrizzle('DB') private readonly db: PostgresJsDatabase<typeof tables>
-    ) {}
+  public async upsert(
+    data: typeof tables.chainTable.$inferInsert
+  ): Promise<typeof tables.chainTable.$inferSelect> {
+    const [row] = await this.txHost.tx
+      .insert(tables.chainTable)
+      .values(data)
+      .onConflictDoUpdate({
+        target: tables.chainTable.debridgeId,
+        set: {
+          name: data.name,
+          isEnabled: data.isEnabled,
+        },
+      })
+      .returning();
 
-    public async upsert(
-        data: typeof tables.chainTable.$inferInsert
-    ): Promise<typeof tables.chainTable.$inferSelect> {
-        const [row] = await this.db
-            .insert(tables.chainTable)
-            .values(data)
-            .onConflictDoUpdate({
-                target: tables.chainTable.debridgeId,
-                set: {
-                    name: data.name,
-                    isEnabled: data.isEnabled,
-                },
-            })
-            .returning();
+    return row;
+  }
 
-        return row;
-    }
-
-    public async findPageSortedByCreatedAt(params: {
-        limit: number;
-        offset: number;
-    }): Promise<typeof tables.chainTable.$inferSelect[]> {
-        const { limit, offset } = params;
-        return this.db
-            .select()
-            .from(tables.chainTable)
-            .orderBy(desc(tables.chainTable.createdAt))
-            .limit(limit)
-            .offset(offset);
-    }
+  public async findPageSortedByCreatedAt(params: {
+    limit: number;
+    offset: number;
+  }): Promise<(typeof tables.chainTable.$inferSelect)[]> {
+    const { limit, offset } = params;
+    return this.txHost.tx
+      .select()
+      .from(tables.chainTable)
+      .orderBy(desc(tables.chainTable.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
 }

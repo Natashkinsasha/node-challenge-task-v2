@@ -1,34 +1,29 @@
-import {InjectDrizzle} from "@knaadh/nestjs-drizzle-postgres";
-import {Injectable} from "@nestjs/common";
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { Injectable } from "@nestjs/common";
+import { AppDrizzleTransactionHost } from "../../../../@shared/shared-cls/app-drizzle-transaction-host";
 import * as tables from "../table";
 
-
 @Injectable()
-export class TokenPriceTickDao{
+export class TokenPriceTickDao {
+  constructor(private readonly txHost: AppDrizzleTransactionHost) {}
 
-    constructor(
-        @InjectDrizzle('DB') private readonly db: PostgresJsDatabase<typeof tables>
-    ) {}
+  public async upsert(
+    data: typeof tables.tokenPriceTickTable.$inferInsert
+  ): Promise<typeof tables.tokenPriceTickTable.$inferSelect> {
+    const [row] = await this.txHost.tx
+      .insert(tables.tokenPriceTickTable)
+      .values(data)
+      .onConflictDoUpdate({
+        target: [
+          tables.tokenPriceTickTable.tokenId,
+          tables.tokenPriceTickTable.updatedAt,
+          tables.tokenPriceTickTable.source,
+        ],
+        set: {
+          price: data.price,
+        },
+      })
+      .returning();
 
-    public async upsert(
-        data: typeof tables.tokenPriceTickTable.$inferInsert
-    ): Promise<typeof tables.tokenPriceTickTable.$inferSelect> {
-        const [row] = await this.db
-            .insert(tables.tokenPriceTickTable)
-            .values(data)
-            .onConflictDoUpdate({
-                target: [
-                    tables.tokenPriceTickTable.tokenId,
-                    tables.tokenPriceTickTable.updatedAt,
-                    tables.tokenPriceTickTable.source,
-                ],
-                set: {
-                    price: data.price,
-                },
-            })
-            .returning();
-
-        return row;
-    }
+    return row;
+  }
 }

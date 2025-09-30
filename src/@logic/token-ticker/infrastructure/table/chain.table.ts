@@ -1,4 +1,11 @@
-import {integer, pgTable, text, uuid, boolean, timestamp} from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  text,
+  uuid,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 export const chainTable = pgTable("chains", {
   id: uuid("id").primaryKey().defaultRandom(),

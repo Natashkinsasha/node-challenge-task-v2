@@ -25,7 +25,10 @@ describe("TokenLogoDao (integration)", () => {
     const tokenLogoDao = fixture.get(TokenLogoDao);
     const chainId = randomUUID();
     const tokenId = randomUUID();
-    await seed(db, { chains: schema.chainTable, tokens: schema.tokenTable }).refine((f) => {
+    await seed(db, {
+      chains: schema.chainTable,
+      tokens: schema.tokenTable,
+    }).refine((f) => {
       return {
         chains: {
           count: 1,
@@ -38,7 +41,9 @@ describe("TokenLogoDao (integration)", () => {
           columns: {
             id: f.valuesFromArray({ values: [tokenId] }),
             chainId: f.valuesFromArray({ values: [chainId] }),
-            address: f.valuesFromArray({ values: ["0x0000000000000000000000000000000000000000"] }),
+            address: f.valuesFromArray({
+              values: ["0x0000000000000000000000000000000000000000"],
+            }),
             symbol: f.valuesFromArray({ values: ["ETH"] }),
             name: f.valuesFromArray({ values: ["Ether"] }),
             decimals: f.valuesFromArray({ values: [18] }),

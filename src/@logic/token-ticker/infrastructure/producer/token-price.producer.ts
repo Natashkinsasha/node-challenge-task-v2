@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from "@nestjs/common";
 import { Kafka, Producer } from "kafkajs";
-import {KafkaPayload, KafkaService} from "nestjs-kafka";
+import { KafkaPayload, KafkaService } from "nestjs-kafka";
 
 @Injectable()
 export class TokenPriceProducer implements OnModuleDestroy {
@@ -9,15 +9,15 @@ export class TokenPriceProducer implements OnModuleDestroy {
 
   constructor(private readonly kafkaService: KafkaService) {}
 
-    public send(){
-        const payload: KafkaPayload = {
-            messageId: '' + new Date().valueOf(),
-            body: message,
-            messageType: TASK_PUSH_INFO,
-            topicName: TASK_PUSH_INFO,
-        };
-      return this.kafkaService.sendMessage(this.TOPIC, payload)
-    }
+  public send() {
+    const payload: KafkaPayload = {
+      messageId: "" + new Date().valueOf(),
+      body: message,
+      messageType: TASK_PUSH_INFO,
+      topicName: TASK_PUSH_INFO,
+    };
+    return this.kafkaService.sendMessage(this.TOPIC, payload);
+  }
 
   private async connect(): Promise<void> {
     await this.producer.connect();

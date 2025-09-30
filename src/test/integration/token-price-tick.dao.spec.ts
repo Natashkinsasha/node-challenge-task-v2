@@ -29,7 +29,10 @@ describe("TokenPriceTickDao (integration)", () => {
     const source = "coingecko";
     const ts = new Date("2024-01-01T00:00:00.000Z");
 
-    await seed(db, { chains: schema.chainTable, tokens: schema.tokenTable }).refine((f) => {
+    await seed(db, {
+      chains: schema.chainTable,
+      tokens: schema.tokenTable,
+    }).refine((f) => {
       return {
         chains: {
           count: 1,
@@ -42,7 +45,9 @@ describe("TokenPriceTickDao (integration)", () => {
           columns: {
             id: f.valuesFromArray({ values: [tokenId] }),
             chainId: f.valuesFromArray({ values: [chainId] }),
-            address: f.valuesFromArray({ values: ["0x0000000000000000000000000000000000000000"] }),
+            address: f.valuesFromArray({
+              values: ["0x0000000000000000000000000000000000000000"],
+            }),
             symbol: f.valuesFromArray({ values: ["ETH"] }),
             name: f.valuesFromArray({ values: ["Ether"] }),
             decimals: f.valuesFromArray({ values: [18] }),
@@ -70,7 +75,9 @@ describe("TokenPriceTickDao (integration)", () => {
     expect(updated.tokenId).toBe(tokenId);
     expect(updated.source).toBe(source);
     expect(updated.price).toBe("2000");
-    expect(updated.updatedAt instanceof Date || updated.updatedAt === null).toBe(true);
+    expect(
+      updated.updatedAt instanceof Date || updated.updatedAt === null
+    ).toBe(true);
     expect(updated.updatedAt).toBeTruthy();
     if (updated.updatedAt) {
       expect(updated.updatedAt.toISOString()).toBe(ts.toISOString());
