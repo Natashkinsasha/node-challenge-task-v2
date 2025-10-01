@@ -4,7 +4,6 @@ import { ConfigService } from "@nestjs/config";
 import * as schema from "../../@logic/token-ticker/infrastructure/table";
 import { SharedConfigModule } from "../shared-config/shared-config.module";
 
-
 @Module({
   imports: [
     DrizzlePostgresModule.registerAsync({

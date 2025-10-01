@@ -4,7 +4,7 @@ import {
   getTransactionHostToken,
 } from "@nestjs-cls/transactional";
 import { TransactionalAdapterDrizzleOrm } from "@nestjs-cls/transactional-adapter-drizzle-orm";
-import { Type } from "@nestjs/common";
+import { Provider, Type } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { ClsModule } from "nestjs-cls";
@@ -17,7 +17,7 @@ export class TestingModuleWithDbFixture {
   private db?: PostgresJsDatabase;
   private module?: TestingModule;
 
-  private constructor(private readonly providers: Array<Type<any>>) {}
+  private constructor(private readonly providers: Array<Provider>) {}
 
   public getDb() {
     if (!this.db) {
@@ -26,7 +26,7 @@ export class TestingModuleWithDbFixture {
     return this.db;
   }
 
-  public static create(providers: Array<Type<any>>) {
+  public static create(providers: Array<Provider>) {
     return new TestingModuleWithDbFixture(providers);
   }
 
@@ -49,6 +49,9 @@ export class TestingModuleWithDbFixture {
             new ClsPluginTransactional({
               adapter: new TransactionalAdapterDrizzleOrm({
                 drizzleInstanceToken: "DB",
+                defaultTxOptions: {
+                  isolationLevel: "read committed",
+                },
               }),
               connectionName: "pg",
             }),

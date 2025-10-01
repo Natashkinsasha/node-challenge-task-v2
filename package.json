@@ -43,7 +43,6 @@
     "kafkajs": "^2.2.4",
     "lodash": "^4.17.21",
     "nestjs-cls": "^6.0.1",
-    "nestjs-kafka": "^1.0.6",
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
