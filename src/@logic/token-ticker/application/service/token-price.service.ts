@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { TokenInfo } from "../../../application/dto/token-info";
-import { TokenPrice } from "../../../application/dto/token-price";
-import { TokenPriceAdapter } from "./token-price.adapter";
+import { TokenInfo } from "../dto/token-info";
+import { TokenPrice } from "../../infrastructure/model/token-price";
+import { TokenPriceAdapter } from "../../infrastructure/adapter/token-price/token-price.adapter";
 
 @Injectable()
-export class TokenPriceManager {
+export class TokenPriceService {
   private readonly adapters: TokenPriceAdapter[] = [];
 
   public register(adapter: TokenPriceAdapter) {

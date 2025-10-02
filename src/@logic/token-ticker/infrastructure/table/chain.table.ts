@@ -8,9 +8,9 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const chainTable = pgTable("chains", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  debridgeId: integer("debridge_id").unique(),
+  id: uuid("id").primaryKey().defaultRandom().notNull(),
+  debridgeId: integer("debridge_id").unique().notNull(),
   name: text("name").notNull(),
-  isEnabled: boolean("is_enabled").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });

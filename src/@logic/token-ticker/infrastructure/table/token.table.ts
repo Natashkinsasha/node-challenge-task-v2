@@ -19,14 +19,14 @@ export const tokenTable = pgTable(
     chainId: uuid("chain_id")
       .notNull()
       .references(() => chainTable.id),
-    symbol: text("symbol"),
-    name: text("name"),
-    decimals: smallint("decimals").default(0),
-    isNative: boolean("is_native").default(false),
-    isProtected: boolean("is_protected").default(false),
+    symbol: text("symbol").notNull(),
+    name: text("name").notNull(),
+    decimals: smallint("decimals").default(0).notNull(),
+    isNative: boolean("is_native").default(false).notNull(),
+    isProtected: boolean("is_protected").default(false).notNull(),
     lastUpdateAuthor: text("last_update_author"),
-    priority: integer("priority").default(0),
-    timestamp: timestamp("timestamp").defaultNow(),
+    priority: integer("priority").default(0).notNull(),
+    timestamp: timestamp("timestamp").defaultNow().notNull(),
   },
   (table) => ({
     chainAddressUq: uniqueIndex("tokens_chain_id_address_uq").on(

@@ -1,8 +1,8 @@
 import { sql } from "drizzle-orm";
-import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 
-import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 
 export class PostgresFixture {
   private constructor() {}
@@ -13,17 +13,17 @@ export class PostgresFixture {
     return new PostgresFixture();
   }
 
-  public async dropAllAndMigrate(db: PostgresJsDatabase) {
+  public async dropAllAndMigrate(db: NodePgDatabase) {
     await this.dropAll(db);
     await this.migrate(db);
   }
 
-  public async dropAll(db: PostgresJsDatabase) {
+  public async dropAll(db: NodePgDatabase) {
     await db.execute(sql`DROP SCHEMA IF EXISTS public CASCADE;`);
     await db.execute(sql`CREATE SCHEMA public;`);
   }
 
-  public migrate(db: PostgresJsDatabase) {
+  public migrate(db: NodePgDatabase) {
     return migrate(db, {
       migrationsFolder: "src/@logic/token-ticker/infrastructure/migration",
     });

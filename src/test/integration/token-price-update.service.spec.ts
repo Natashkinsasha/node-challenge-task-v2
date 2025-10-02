@@ -1,24 +1,11 @@
-import { DeepMockProxy, mock, mockDeep } from "jest-mock-extended";
+import { DeepMockProxy, mockDeep } from "jest-mock-extended";
 import { TokenPriceUpdateService } from "../../@logic/token-ticker/application/service/token-price-update.service";
-import { TokenRepository } from "../../@logic/token-ticker/infrastructure/repository/token.repository";
 import { TokenPriceTickDao } from "../../@logic/token-ticker/infrastructure/dao/token-price-tick.dao";
-import { Token } from "../../@logic/token-ticker/domain/aggregate/token";
-import { TokenPriceManager } from "../../@logic/token-ticker/infrastructure/adapter/token-price/token-price.manager";
+import { TokenPriceService } from "../../@logic/token-ticker/application/service/token-price.service";
 import { TokenPriceAdapter } from "../../@logic/token-ticker/infrastructure/adapter/token-price/token-price.adapter";
 import { TokenInfo } from "../../@logic/token-ticker/application/dto/token-info";
+import { TokenDao } from "../../@logic/token-ticker/infrastructure/dao/token.dao";
 import { TestingModuleWithDbFixture } from "../fuxture/testing-module-with-db-fixture";
-
-const makeToken = (params?: {
-  id?: string;
-  address?: string;
-  debridgeId?: number;
-}): Token => {
-  const { id = "token-1", address = "0xABC", debridgeId = 1 } = params ?? {};
-  const t = mock<Token>();
-  t.getId.mockReturnValue(id);
-  t.getTokenInfo.mockReturnValue({ address, debridgeId });
-  return t;
-};
 
 class TestTokenPriceAdapter extends TokenPriceAdapter {
   private readonly fixedDate = new Date("2023-01-01T00:00:00.000Z");
@@ -34,18 +21,18 @@ class TestTokenPriceAdapter extends TokenPriceAdapter {
 describe("TokenPriceUpdateService", () => {
   let fixture: TestingModuleWithDbFixture;
 
-  beforeEach(async () => {
-    const tokenRepository = mockDeep<TokenRepository>();
+  beforeAll(async () => {
+    const tokenDao = mockDeep<TokenDao>();
     const tokenPriceTickDao = mockDeep<TokenPriceTickDao>();
     fixture = TestingModuleWithDbFixture.create([
       TokenPriceUpdateService,
-      TokenPriceManager,
-      { provide: TokenRepository, useValue: tokenRepository },
+      TokenPriceService,
+      { provide: TokenDao, useValue: tokenDao },
       { provide: TokenPriceTickDao, useValue: tokenPriceTickDao },
       TestTokenPriceAdapter,
     ]);
     await fixture.start();
-  });
+  }, 60_000);
 
   beforeEach(async () => {
     await fixture.dropAllAndMigrate();
@@ -56,14 +43,13 @@ describe("TokenPriceUpdateService", () => {
   });
 
   it("throws if token not found", async () => {
-    const tokenRepository =
-      fixture.get<DeepMockProxy<TokenRepository>>(TokenRepository);
+    const tokenDao = fixture.get<DeepMockProxy<TokenDao>>(TokenDao);
     const service = fixture.get<DeepMockProxy<TokenPriceUpdateService>>(
       TokenPriceUpdateService
     );
     const tokenPriceTickDao =
       fixture.get<DeepMockProxy<TokenPriceTickDao>>(TokenPriceTickDao);
-    tokenRepository.findById.mockResolvedValueOnce(undefined);
+    tokenDao.findById.mockResolvedValueOnce(undefined);
     await expect(service.updateTokenPrice("missing-id")).rejects.toThrow(
       "Token not found"
     );
@@ -71,19 +57,36 @@ describe("TokenPriceUpdateService", () => {
   });
 
   it("upserts prices returned by manager", async () => {
-    const tokenRepository =
-      fixture.get<DeepMockProxy<TokenRepository>>(TokenRepository);
+    const tokenDao = fixture.get<DeepMockProxy<TokenDao>>(TokenDao);
     const service = fixture.get<DeepMockProxy<TokenPriceUpdateService>>(
       TokenPriceUpdateService
     );
     const tokenPriceTickDao =
       fixture.get<DeepMockProxy<TokenPriceTickDao>>(TokenPriceTickDao);
-    const token = makeToken({ id: "id-123", address: "0xDEAD" });
-    tokenRepository.findById.mockResolvedValueOnce(token);
+    tokenDao.findById.mockResolvedValueOnce({
+      id: "id-123",
+      address: "0xABC",
+      chainId: "chain-1",
+      symbol: "ABC",
+      name: "ABC",
+      decimals: 18,
+      isNative: false,
+      isProtected: false,
+      lastUpdateAuthor: "author-1",
+      priority: 0,
+      timestamp: new Date("2023-01-01T00:00:00.000Z"),
+      chain: {
+        id: "chain-1",
+        debridgeId: 1,
+        name: "Chain 1",
+        createdAt: new Date("2023-01-01T00:00:00.000Z"),
+        isEnabled: true,
+      },
+    });
 
     await service.updateTokenPrice("id-123");
 
-    expect(tokenRepository.findById).toHaveBeenCalledWith("id-123");
+    expect(tokenDao.findById).toHaveBeenCalledWith("id-123");
     expect(tokenPriceTickDao.upsert).toHaveBeenCalledTimes(1);
     expect(tokenPriceTickDao.upsert).toHaveBeenCalledWith({
       tokenId: "id-123",

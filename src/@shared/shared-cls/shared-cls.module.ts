@@ -5,7 +5,7 @@ import {
   getTransactionHostToken,
 } from "@nestjs-cls/transactional";
 import { TransactionalAdapterDrizzleOrm } from "@nestjs-cls/transactional-adapter-drizzle-orm";
-import { SharedDrizzlePostgresModule } from "../shared-drizzle-postgres/shared-drizzle-postgres.module";
+import { SharedDrizzlePgModule } from "../shared-drizzle-pg/shared-drizzle-pg.module";
 import { AppDrizzleTransactionHost } from "./app-drizzle-transaction-host";
 
 @Module({
@@ -13,7 +13,7 @@ import { AppDrizzleTransactionHost } from "./app-drizzle-transaction-host";
     ClsModule.forRoot({
       plugins: [
         new ClsPluginTransactional({
-          imports: [SharedDrizzlePostgresModule],
+          imports: [SharedDrizzlePgModule],
           adapter: new TransactionalAdapterDrizzleOrm({
             drizzleInstanceToken: "DB",
           }),
@@ -28,5 +28,6 @@ import { AppDrizzleTransactionHost } from "./app-drizzle-transaction-host";
       provide: AppDrizzleTransactionHost,
     },
   ],
+  exports: [AppDrizzleTransactionHost, ClsModule],
 })
 export class SharedClsModule {}

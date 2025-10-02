@@ -1,4 +1,4 @@
-import { DrizzlePostgresModule } from "@knaadh/nestjs-drizzle-postgres";
+import { DrizzlePGModule } from "@knaadh/nestjs-drizzle-pg";
 import {
   ClsPluginTransactional,
   getTransactionHostToken,
@@ -6,7 +6,7 @@ import {
 import { TransactionalAdapterDrizzleOrm } from "@nestjs-cls/transactional-adapter-drizzle-orm";
 import { Provider, Type } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { ClsModule } from "nestjs-cls";
 import * as schema from "../../@logic/token-ticker/infrastructure/table";
 import { AppDrizzleTransactionHost } from "../../@shared/shared-cls/app-drizzle-transaction-host";
@@ -14,7 +14,7 @@ import { PostgresFixture } from "./postgres-fixture";
 
 export class TestingModuleWithDbFixture {
   private postgresFixture?: PostgresFixture;
-  private db?: PostgresJsDatabase;
+  private db?: NodePgDatabase;
   private module?: TestingModule;
 
   private constructor(private readonly providers: Array<Provider>) {}
@@ -37,10 +37,13 @@ export class TestingModuleWithDbFixture {
 
     this.module = await Test.createTestingModule({
       imports: [
-        DrizzlePostgresModule.register({
+        DrizzlePGModule.register({
           tag: "DB",
-          postgres: {
-            url: postgresUrl,
+          pg: {
+            connection: "pool",
+            config: {
+              connectionString: postgresUrl,
+            },
           },
           config: { schema },
         }),
@@ -71,8 +74,13 @@ export class TestingModuleWithDbFixture {
   }
 
   public async stop() {
+    // Close Nest testing module to release DI resources.
     await this.module?.close();
-    await this.postgresFixture?.stop();
+    // await this.postgresFixture?.stop();
+    // IMPORTANT: Do not stop the Postgres testcontainer here.
+    // Stopping it while pg clients/pools still exist causes unhandled
+    // "terminating connection due to administrator command" errors in Jest.
+    // Testcontainers will clean up containers on process exit.
   }
 
   public get<TInput = any, TResult = TInput>(

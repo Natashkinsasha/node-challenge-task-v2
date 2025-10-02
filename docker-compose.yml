@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: token-price-postgres
+    container_name: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -17,31 +17,57 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0
-    container_name: token-price-zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
+    command: [
+      "postgres",
+      "-c", "wal_level=logical",
+      "-c", "max_wal_senders=10",
+      "-c", "max_replication_slots=10"
+    ]
 
   kafka:
-    image: confluentinc/cp-kafka:7.3.0
-    container_name: token-price-kafka
-    depends_on:
-      - zookeeper
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
     ports:
-      - "9092:9092"
+      - "9092:29092"
+      - "9093:9093"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_NODE_ID=1
+      - CLUSTER_ID=Z0KRaFtCluSterIdAbCdEf
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_NUM_PARTITIONS=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:29092 --list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  connect:
+    image: quay.io/debezium/connect:2.7
+    container_name: debezium
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:29092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=_connect_configs
+      - OFFSET_STORAGE_TOPIC=_connect_offsets
+      - STATUS_STORAGE_TOPIC=_connect_status
+      - KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+      - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - VALUE_CONVERTER_SCHEMAS_ENABLE=false
+      - ENABLE_DEBEZIUM_SCRIPTING=true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8083/connectors || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 5

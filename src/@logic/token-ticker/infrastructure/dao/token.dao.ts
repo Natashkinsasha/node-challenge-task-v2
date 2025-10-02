@@ -1,6 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 import { AppDrizzleTransactionHost } from "../../../../@shared/shared-cls/app-drizzle-transaction-host";
+import { InsertToken } from "../model/insert-token";
+import { SelectToken } from "../model/select-token";
+import { TokenWithChain } from "../model/token-with-chain";
 
 import * as tables from "../table";
 
@@ -9,8 +12,8 @@ export class TokenDao {
   constructor(private readonly txHost: AppDrizzleTransactionHost) {}
 
   public async upsert(
-    data: typeof tables.tokenTable.$inferInsert
-  ): Promise<typeof tables.tokenTable.$inferSelect> {
+    data: InsertToken
+  ): Promise<SelectToken & { isInserted: boolean }> {
     const [row] = await this.txHost.tx
       .insert(tables.tokenTable)
       .values(data)
@@ -27,11 +30,14 @@ export class TokenDao {
           timestamp: new Date(),
         },
       })
-      .returning();
+      .returning({
+        ...getTableColumns(tables.tokenTable),
+        isInserted: sql<boolean>`(xmax = 0)`,
+      });
     return row;
   }
 
-  public async findById(id: string) {
+  public async findById(id: string): Promise<TokenWithChain | undefined> {
     return this.txHost.tx.query.tokenTable.findFirst({
       where: eq(tables.tokenTable.id, id),
       with: {

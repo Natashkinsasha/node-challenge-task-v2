@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { TokenInfo } from "../../../application/dto/token-info";
-import { TokenPrice } from "../../../application/dto/token-price";
+import { TokenPrice } from "../../model/token-price";
 import { TokenPriceAdapter } from "./token-price.adapter";
 
 @Injectable()
@@ -15,7 +15,7 @@ export class MockTokenPriceAdapter extends TokenPriceAdapter {
     const basePrice = this.getRandomInt(1, 100000);
     const randomFactor = Math.random() * 10;
 
-    return { value: basePrice * randomFactor, date: new Date() };
+    return { value: (basePrice * randomFactor).toString(), date: new Date() };
   }
 
   private getRandomInt(min: number, max: number): number {
