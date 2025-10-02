@@ -1,8 +1,8 @@
-import {randomUUID} from "crypto";
-import { setTimeout as sleep } from 'node:timers/promises';
-import {INestApplication, Logger} from "@nestjs/common";
+import { randomUUID } from "crypto";
+import { setTimeout as sleep } from "node:timers/promises";
+import { INestApplication, Logger } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import {PGBossModule} from "../../@lib/pg-boss";
+import { PGBossModule } from "../../@lib/pg-boss";
 import { StoreTokenPriceTickJob } from "../../@logic/token-ticker/infrastructure/boss-job/store-token-price-tick.boss-job";
 import { StoreTokenPriceTickBossHandler } from "../../@logic/token-ticker/infrastructure/boss-handler/store-token-price-tick.boss-handler";
 import { TokenPriceUpdateService } from "../../@logic/token-ticker/application/service/token-price-update.service";
@@ -16,28 +16,30 @@ describe("CreateTokenConsumer (integration)", () => {
 
   beforeAll(async () => {
     fixture = PostgresFixture.create();
-      const connectionString = await fixture.getUrl();
-      const moduleFixture: TestingModule = await Test.createTestingModule({
-          imports: [
-              PGBossModule.forRoot({ connectionString, onError: (error) => {
-                      Logger.error(error.message, error.stack, "PgBossModule");
-                  } }),
-              PGBossModule.forJobs([StoreTokenPriceTickJob]),
-          ],
-          providers: [
-              StoreTokenPriceTickBossHandler,
-              CreateTokenConsumer,
-              {
-                  provide: TokenPriceUpdateService,
-                  useValue: mockDeep<TokenPriceUpdateService>(),
-              },
-          ],
-      }).compile();
+    const connectionString = await fixture.getUrl();
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [
+        PGBossModule.forRoot({
+          connectionString,
+          onError: (error) => {
+            Logger.error(error.message, error.stack, "PgBossModule");
+          },
+        }),
+        PGBossModule.forJobs([StoreTokenPriceTickJob]),
+      ],
+      providers: [
+        StoreTokenPriceTickBossHandler,
+        CreateTokenConsumer,
+        {
+          provide: TokenPriceUpdateService,
+          useValue: mockDeep<TokenPriceUpdateService>(),
+        },
+      ],
+    }).compile();
 
-      app = moduleFixture.createNestApplication();
-      await app.init();
+    app = moduleFixture.createNestApplication();
+    await app.init();
   }, 120_000);
-
 
   afterAll(async () => {
     if (app) {

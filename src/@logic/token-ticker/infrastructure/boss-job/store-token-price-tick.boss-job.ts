@@ -1,5 +1,5 @@
 import { z } from "zod";
-import {createJob} from "../../../../@lib/pg-boss";
+import { createJob } from "../../../../@lib/pg-boss";
 
 const StorePriceTickJobDataSchema = z.object({
   tokenId: z.uuid(),

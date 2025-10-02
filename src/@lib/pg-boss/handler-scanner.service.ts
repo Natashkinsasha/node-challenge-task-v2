@@ -8,7 +8,6 @@ import type { WorkHandler } from "pg-boss";
 
 @Injectable()
 export class HandlerScannerService {
-
   constructor(
     private readonly metadataScanner: MetadataScanner,
     public readonly modulesContainer: ModulesContainer

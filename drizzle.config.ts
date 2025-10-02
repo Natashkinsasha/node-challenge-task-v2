@@ -1,6 +1,8 @@
-import "dotenv/config";
-
+import dotenv from 'dotenv'
 import { defineConfig } from "drizzle-kit";
+
+dotenv.config({ path: './env/.env' })
+
 
 export * as schema from "./src/@logic/token-ticker/infrastructure/table";
 

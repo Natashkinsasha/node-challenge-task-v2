@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { EventHandler } from "@torixtv/nestjs-kafka";
-import {JobService} from "../../../../@lib/pg-boss";
+import { JobService } from "../../../../@lib/pg-boss";
 import {
   StoreTokenPriceTickJob,
   StoreTokenPriceTickJobData,
@@ -22,6 +22,7 @@ export class CreateTokenConsumer {
       },
       {
         singletonNextSlot: true,
+        singletonSeconds: 20,
         singletonKey: `store-token-price-tick:${tokenId}`,
       }
     );

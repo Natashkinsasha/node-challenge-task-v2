@@ -1,4 +1,13 @@
-version: '3.8'
+version: "3.8"
+
+networks:
+  node-challenge-task:
+    name: node-challenge-task
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -8,6 +17,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - node-challenge-task
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -25,6 +36,8 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
     depends_on:
       - zookeeper
+    networks:
+      - node-challenge-task
 
   connect:
     image: debezium/connect:2.5
@@ -40,6 +53,8 @@ services:
       CONNECT_PLUGIN_PATH: /kafka/connect
     depends_on:
       - kafka
+    networks:
+      - node-challenge-task
 
   postgres:
     image: postgres:15-alpine
@@ -63,8 +78,26 @@ services:
       "-c", "max_wal_senders=10",
       "-c", "max_replication_slots=10"
     ]
+    networks:
+      - node-challenge-task
 
-  kafdrop: # Optional Kafka UI
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False" # одиночный режим (необязательно)
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - node-challenge-task
+
+  kafdrop:
     image: obsidiandynamics/kafdrop
     hostname: kafdrop
     ports:
@@ -73,8 +106,8 @@ services:
       KAFKA_BROKERCONNECT: kafka:29092
     depends_on:
       - kafka
+    networks:
+      - node-challenge-task
 
-volumes:
-  postgres-data:
 
 

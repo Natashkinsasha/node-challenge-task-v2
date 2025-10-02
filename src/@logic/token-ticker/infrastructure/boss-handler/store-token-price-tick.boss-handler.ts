@@ -14,6 +14,7 @@ export class StoreTokenPriceTickBossHandler {
 
   @StoreTokenPriceTickJob.Handle()
   async handleJob(job: Job<StoreTokenPriceTickJobData>) {
+    console.log(job);
     await this.tokenPriceUpdateService.updateTokenPrice(job.data.tokenId);
   }
 }

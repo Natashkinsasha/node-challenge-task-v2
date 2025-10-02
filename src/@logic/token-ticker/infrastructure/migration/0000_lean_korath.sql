@@ -2,22 +2,22 @@ CREATE TABLE "tokens" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"address" text NOT NULL,
 	"chain_id" uuid NOT NULL,
-	"symbol" text,
-	"name" text,
-	"decimals" smallint DEFAULT 0,
-	"is_native" boolean DEFAULT false,
-	"is_protected" boolean DEFAULT false,
+	"symbol" text NOT NULL,
+	"name" text NOT NULL,
+	"decimals" smallint DEFAULT 0 NOT NULL,
+	"is_native" boolean DEFAULT false NOT NULL,
+	"is_protected" boolean DEFAULT false NOT NULL,
 	"last_update_author" text,
-	"priority" integer DEFAULT 0,
-	"timestamp" timestamp DEFAULT now()
+	"priority" integer DEFAULT 0 NOT NULL,
+	"timestamp" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "chains" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"debridge_id" integer,
+	"debridge_id" integer NOT NULL,
 	"name" text NOT NULL,
-	"is_enabled" boolean DEFAULT true,
-	"created_at" timestamp DEFAULT now(),
+	"is_enabled" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "chains_debridge_id_unique" UNIQUE("debridge_id")
 );
 --> statement-breakpoint
@@ -36,6 +36,15 @@ CREATE TABLE "token_logos" (
 	"small_relative_path" text NOT NULL,
 	"thumb_relative_path" text NOT NULL,
 	CONSTRAINT "token_logos_token_id_unique" UNIQUE("token_id")
+);
+--> statement-breakpoint
+CREATE TABLE "outbox_event" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"aggregate_type" text NOT NULL,
+	"aggregate_id" text NOT NULL,
+	"type" text NOT NULL,
+	"payload" text NOT NULL,
+	"timestamp" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_chain_id_chains_id_fk" FOREIGN KEY ("chain_id") REFERENCES "public"."chains"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
