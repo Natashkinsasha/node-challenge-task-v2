@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Transaction } from "../../../../@shared/shared-cls/transaction";
+import {SelectTokenPriceTick} from "../../infrastructure/model/select-token-price-tick";
 import { TokenPriceService } from "./token-price.service";
 import { TokenPriceTickDao } from "../../infrastructure/dao/token-price-tick.dao";
 import { TokenDao } from "../../infrastructure/dao/token.dao";
@@ -14,7 +15,7 @@ export class TokenPriceUpdateService {
   ) {}
 
   @Transaction()
-  public async updateTokenPrice(tokenId: string): Promise<void> {
+  public async updateTokenPrice(tokenId: string): Promise<ReadonlyArray<SelectTokenPriceTick>> {
     const tokenWithChain = await this.tokenDao.findById(tokenId);
     if (!tokenWithChain) {
       throw new Error("Token not found");
@@ -25,7 +26,7 @@ export class TokenPriceUpdateService {
     });
     const prices = await this.tokenPriceManager.getPrice(tokenInfo);
 
-    await Promise.all(
+    return Promise.all(
       prices.map((price) => {
         return this.tokenPriceTickDao.upsert({
           tokenId: tokenWithChain.id,

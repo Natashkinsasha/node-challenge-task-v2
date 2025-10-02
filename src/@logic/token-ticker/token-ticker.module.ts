@@ -1,15 +1,15 @@
 import { Module } from "@nestjs/common";
-import { PGBossModule } from "../../@lib/pg-boss";
+import { JobModule } from "../../@lib/job/src";
 import { SharedClsModule } from "../../@shared/shared-cls/shared-cls.module";
 import { SharedDrizzlePgModule } from "../../@shared/shared-drizzle-pg/shared-drizzle-pg.module";
-import { SharedPgBossModule } from "../../@shared/shared-pg-boss/shared-pg-boss.module";
+import { SharedJobModule } from "../../@shared/shared-job";
+import { SharedJobBoardModule } from "../../@shared/shared-job-board";
 import { SharedZodHttpModule } from "../../@shared/shared-zod-http/shared-zod-http.module";
 import { TokenMaintainer } from "./application/maintainer/token.maintainer";
 import { TokenPriceUpdateService } from "./application/service/token-price-update.service";
+import { TokenPriceTrickBullHandler } from "./infrastructure/bull-handler/token-price-trick.bull-handler";
 import { MockTokenPriceAdapter } from "./infrastructure/adapter/token-price/mock-token-price.adapter";
 import { TokenPriceService } from "./application/service/token-price.service";
-import { StoreTokenPriceTickBossHandler } from "./infrastructure/boss-handler/store-token-price-tick.boss-handler";
-import { StoreTokenPriceTickJob } from "./infrastructure/boss-job/store-token-price-tick.boss-job";
 import { CreateTokenConsumer } from "./infrastructure/consumer/create-token.consumer";
 import { ChainDao } from "./infrastructure/dao/chain.dao";
 import { TokenLogoDao } from "./infrastructure/dao/token-logo.dao";
@@ -25,8 +25,11 @@ import { TokenController } from "./presentation/controller/token.controller";
     SharedZodHttpModule,
     SharedClsModule,
     SharedDrizzlePgModule,
-    SharedPgBossModule,
-    PGBossModule.forJobs([StoreTokenPriceTickJob]),
+    SharedJobModule,
+    SharedJobBoardModule,
+    JobModule.registerQueue({
+      name: TokenPriceTrickBullHandler.getName(),
+    }),
   ],
   providers: [
     TokenDao,
@@ -37,11 +40,11 @@ import { TokenController } from "./presentation/controller/token.controller";
     EventService,
     TokenPriceService,
     MockTokenPriceAdapter,
-    StoreTokenPriceTickBossHandler,
     TokenPriceUpdateService,
     CreateTokenConsumer,
     TokenMaintainer,
     TokenRepository,
+    TokenPriceTrickBullHandler,
   ],
   controllers: [TokenController],
 })

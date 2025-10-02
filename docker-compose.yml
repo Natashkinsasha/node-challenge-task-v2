@@ -7,6 +7,7 @@ networks:
 volumes:
   postgres-data:
   pgadmin-data:
+  redis-data:
 
 services:
   zookeeper:
@@ -87,7 +88,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: "False" # одиночный режим (необязательно)
+      PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
       - "8080:80"
     depends_on:
@@ -108,6 +109,17 @@ services:
       - kafka
     networks:
       - node-challenge-task
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - node-challenge-task
+
 
 
 

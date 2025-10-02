@@ -1,30 +1,29 @@
+import { InjectQueue } from "@nestjs/bullmq";
 import { Injectable } from "@nestjs/common";
 import { EventHandler } from "@torixtv/nestjs-kafka";
-import { JobService } from "../../../../@lib/pg-boss";
+import { Queue } from "bullmq";
 import {
-  StoreTokenPriceTickJob,
-  StoreTokenPriceTickJobData,
-} from "../boss-job/store-token-price-tick.boss-job";
+  TokenPriceTrickBullHandler,
+  TokenPriceTrickBullJobDate,
+} from "../bull-handler/token-price-trick.bull-handler";
 
 @Injectable()
 export class CreateTokenConsumer {
   constructor(
-    @StoreTokenPriceTickJob.Inject()
-    private readonly storeTokenPriceTickJobService: JobService<StoreTokenPriceTickJobData>
+    @InjectQueue(TokenPriceTrickBullHandler.getName())
+    private readonly tokenPriceTrickQueue: Queue<TokenPriceTrickBullJobDate>
   ) {}
-
   @EventHandler("token.create")
-  async handlerTokenCreate(tokenId: string, cron?: string) {
-    return this.storeTokenPriceTickJobService.schedule(
-      cron ?? "*/5 * * * * *",
-      {
-        tokenId,
-      },
-      {
-        singletonNextSlot: true,
-        singletonSeconds: 20,
-        singletonKey: `store-token-price-tick:${tokenId}`,
-      }
+  async handlerTokenCreate(
+    tokenId: string,
+    every: number = 5000
+  ): Promise<void> {
+    const jobId = `token-price-trick-${tokenId}`;
+    const job = await this.tokenPriceTrickQueue.add(
+      `Token price trick: ${tokenId}`,
+      { tokenId },
+      { jobId, repeat: { every, key: jobId } }
     );
+    console.log(job);
   }
 }
