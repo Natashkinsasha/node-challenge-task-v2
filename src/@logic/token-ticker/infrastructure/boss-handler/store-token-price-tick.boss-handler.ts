@@ -13,11 +13,7 @@ export class StoreTokenPriceTickBossHandler {
   ) {}
 
   @StoreTokenPriceTickJob.Handle()
-  async handleJob(job?: Job<StoreTokenPriceTickJobData>) {
-      console.log({job});
-    if (!job) {
-      return;
-    }
+  async handleJob(job: Job<StoreTokenPriceTickJobData>) {
     await this.tokenPriceUpdateService.updateTokenPrice(job.data.tokenId);
   }
 }

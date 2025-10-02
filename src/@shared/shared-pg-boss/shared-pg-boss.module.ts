@@ -11,6 +11,8 @@ import { SharedConfigModule } from "../shared-config/shared-config.module";
         const url = configService.get<string>("DATABASE_URL");
         return {
           connectionString: url,
+          // Use a dedicated schema to avoid conflicts with any existing pg-boss tables
+          schema: "pgboss_v9",
           onError: (error: Error) => {
             Logger.error(error.message, error.stack, "PgBossModule");
           },
