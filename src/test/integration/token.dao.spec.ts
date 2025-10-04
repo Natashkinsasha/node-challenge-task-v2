@@ -1,10 +1,11 @@
-import { randomUUID } from "crypto";
-import { seed } from "drizzle-seed";
-import { TokenDao } from "../../@logic/token-ticker/infrastructure/dao/token.dao";
-import * as schema from "../../@logic/token-ticker/infrastructure/table";
-import { TestingModuleWithDbFixture } from "../fuxture/testing-module-with-db-fixture";
+import { randomUUID } from 'crypto';
+import { seed } from 'drizzle-seed';
 
-describe("TokenDao (integration)", () => {
+import { TokenDao } from '../../@logic/token-ticker/infrastructure/dao/token.dao';
+import * as schema from '../../@logic/token-ticker/infrastructure/table';
+import { TestingModuleWithDbFixture } from '../fuxture/testing-module-with-db-fixture';
+
+describe('TokenDao (integration)', () => {
   let fixture: TestingModuleWithDbFixture;
 
   beforeAll(async () => {
@@ -20,7 +21,7 @@ describe("TokenDao (integration)", () => {
     await fixture.stop();
   });
 
-  it("should upsert token and fetch with relation (chain)", async () => {
+  it('should upsert token and fetch with relation (chain)', async () => {
     const tokenDao = fixture.get(TokenDao);
     const chainId = randomUUID();
 
@@ -37,26 +38,26 @@ describe("TokenDao (integration)", () => {
     const tokenId = randomUUID();
     const initial = await tokenDao.upsert({
       id: tokenId,
-      address: "0x0000000000000000000000000000000000000000",
+      address: '0x0000000000000000000000000000000000000000',
       chainId: chainId,
-      symbol: "ETH",
-      name: "Ether",
+      symbol: 'ETH',
+      name: 'Ether',
       decimals: 18,
       isNative: true,
       isProtected: false,
-      lastUpdateAuthor: "tester",
+      lastUpdateAuthor: 'tester',
       priority: 1,
       timestamp: new Date(),
     });
     expect(initial.id).toBe(tokenId);
     expect(initial.chainId).toBe(chainId);
-    expect(initial.address).toBe("0x0000000000000000000000000000000000000000");
-    expect(initial.symbol).toBe("ETH");
-    expect(initial.name).toBe("Ether");
+    expect(initial.address).toBe('0x0000000000000000000000000000000000000000');
+    expect(initial.symbol).toBe('ETH');
+    expect(initial.name).toBe('Ether');
     expect(initial.decimals).toBe(18);
     expect(initial.isNative).toBe(true);
     expect(initial.isProtected).toBe(false);
-    expect(initial.lastUpdateAuthor).toBe("tester");
+    expect(initial.lastUpdateAuthor).toBe('tester');
     expect(initial.priority).toBe(1);
     expect(initial.timestamp instanceof Date).toBe(true);
   });

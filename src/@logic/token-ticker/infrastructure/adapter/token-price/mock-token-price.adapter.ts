@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { TokenInfo } from "../../../application/dto/token-info";
-import { TokenPrice } from "../../model/token-price";
-import { TokenPriceAdapter } from "./token-price.adapter";
+import { Injectable } from '@nestjs/common';
+
+import { TokenInfo } from '../../../application/dto/token-info';
+import { TokenPrice } from '../../model/token-price';
+import { TokenPriceAdapter } from './token-price.adapter';
 
 @Injectable()
 export class MockTokenPriceAdapter extends TokenPriceAdapter {
@@ -25,6 +26,6 @@ export class MockTokenPriceAdapter extends TokenPriceAdapter {
   }
 
   protected getSource(): string {
-    return "Mock";
+    return 'Mock';
   }
 }

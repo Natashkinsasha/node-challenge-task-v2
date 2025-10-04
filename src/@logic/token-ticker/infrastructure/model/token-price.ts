@@ -1,4 +1,4 @@
-import * as z from "zod";
+import * as z from 'zod';
 
 const TokenPriceSchema = z.object({
   value: z.string(),

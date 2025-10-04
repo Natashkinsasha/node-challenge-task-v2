@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { AppDrizzleTransactionHost } from "../../../../@shared/shared-cls/app-drizzle-transaction-host";
-import * as tables from "../table";
-import { InsertOutboxEvent } from "../model/insert-outbox-event";
+import { Injectable } from '@nestjs/common';
+
+import { AppDrizzleTransactionHost } from '../../../../@shared/shared-cls/app-drizzle-transaction-host';
+import { InsertOutboxEvent } from '../model/insert-outbox-event';
+import * as tables from '../table';
 
 @Injectable()
 export class OutboxEventDao {
@@ -15,7 +16,6 @@ export class OutboxEventDao {
         aggregateId: data.aggregateId,
         type: data.type,
         payload: data.payload,
-        // timestamp is default NOW() in schema
       })
       .returning({ id: tables.outboxEventTable.id });
 

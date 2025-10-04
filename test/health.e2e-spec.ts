@@ -1,5 +1,6 @@
 import * as request from 'supertest';
-import {AppFixture} from "./fixture/app.fixture";
+
+import { AppFixture } from './fixture/app.fixture';
 
 describe.skip('Health E2E (GET /health)', () => {
   let app: AppFixture;
@@ -15,10 +16,7 @@ describe.skip('Health E2E (GET /health)', () => {
   it('should return ok and pg up', async () => {
     const server = app.getHttpServer();
 
-
-    const res = await request(server)
-      .get('/health')
-      .expect(200);
+    const res = await request(server).get('/health').expect(200);
 
     expect(res.body).toBeDefined();
     expect(res.body.status).toBe('ok');

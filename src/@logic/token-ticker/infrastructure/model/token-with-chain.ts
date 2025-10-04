@@ -1,6 +1,7 @@
-import { z } from "zod";
-import { selectTokenSchema } from "./select-token";
-import { selectChainSchema } from "./select-chain";
+import { z } from 'zod';
+
+import { selectChainSchema } from './select-chain';
+import { selectTokenSchema } from './select-token';
 
 export const tokenWithChainSchema = selectTokenSchema.extend({
   chain: selectChainSchema,

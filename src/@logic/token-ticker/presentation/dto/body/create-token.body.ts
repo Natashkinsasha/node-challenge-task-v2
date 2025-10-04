@@ -1,5 +1,6 @@
-import { createZodDto } from "nestjs-zod";
-import { insertTokenSchema } from "../../../infrastructure/model/insert-token";
+import { createZodDto } from 'nestjs-zod';
+
+import { insertTokenSchema } from '../../../infrastructure/model/insert-token';
 
 const createTokenSchema = insertTokenSchema.pick({
   address: true,

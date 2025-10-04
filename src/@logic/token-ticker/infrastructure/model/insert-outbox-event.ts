@@ -1,6 +1,7 @@
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { outboxEventTable } from "../table";
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+
+import { outboxEventTable } from '../table';
 
 export const insertOutboxEventSchema = createInsertSchema(outboxEventTable);
 

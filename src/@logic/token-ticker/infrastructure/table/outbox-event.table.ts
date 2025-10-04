@@ -1,15 +1,36 @@
-import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
-// Debezium Outbox-compatible table shape
-// Columns match common Outbox Event Router expectations
-// - payload is a JSON string (TEXT)
-export const outboxEventTable = pgTable("outbox_event", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  aggregateType: text("aggregate_type").notNull(),
-  aggregateId: text("aggregate_id").notNull(),
-  type: text("type").notNull(),
-  payload: text("payload").notNull(),
-  timestamp: timestamp("timestamp", { withTimezone: true })
+export const outboxEventTable = pgTable('outbox_event', {
+  // Unique identifier of the event (UUID).
+  // Can be used for idempotency checks.
+  id: uuid('id').primaryKey().defaultRandom(),
+
+  // Type of the aggregate that produced the event (e.g. "User", "Order").
+  // Usually propagated into Kafka headers for additional context.
+  aggregateType: text('aggregate_type').notNull(),
+
+  // Identifier of the aggregate instance (usually UUID).
+  // Debezium Outbox Router will use this field as Kafka message.key,
+  // ensuring that all events of the same aggregate go to the same partition
+  // and preserve ordering.
+  aggregateId: uuid('aggregate_id').notNull(),
+
+  // Domain event type (e.g. "user.created", "order.paid").
+  // The Outbox Router can build the topic name from this field:
+  // topic = app.events.${type}
+  type: text('type').notNull(),
+
+  // Main event payload (JSON body).
+  // Will be mapped into Kafka → message.value.
+  payload: text('payload').notNull(),
+
+  // Additional metadata (e.g. traceId, correlationId).
+  // Will be mapped into Kafka → message.headers.
+  headers: text('headers').notNull().default('{}'),
+
+  // Event creation timestamp.
+  // The Outbox Router will map this into Kafka message timestamp.
+  createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
 });

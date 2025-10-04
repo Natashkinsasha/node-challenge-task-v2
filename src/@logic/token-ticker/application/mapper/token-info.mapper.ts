@@ -1,5 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { TokenInfo, tokenInfoSchema } from "../dto/token-info";
+import { Injectable } from '@nestjs/common';
+
+import { TokenInfo, tokenInfoSchema } from '../dto/token-info';
 
 @Injectable()
 export class TokenInfoMapper {

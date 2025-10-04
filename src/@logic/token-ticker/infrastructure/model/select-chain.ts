@@ -1,6 +1,7 @@
-import { createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
-import { chainTable } from "../table";
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
+
+import { chainTable } from '../table';
 
 export const selectChainSchema = createSelectSchema(chainTable);
 

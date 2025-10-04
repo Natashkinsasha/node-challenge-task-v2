@@ -13,13 +13,11 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     hostname: zookeeper
-    ports:
-      - "2181:2181"
+    ports: ["2181:2181"]
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - node-challenge-task
+    networks: [node-challenge-task]
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -34,91 +32,100 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-    depends_on:
-      - zookeeper
-    networks:
-      - node-challenge-task
-
-  connect:
-    image: debezium/connect:2.5
-    hostname: connect
-    ports:
-      - "8083:8083"
-    environment:
-      BOOTSTRAP_SERVERS: kafka:29092
-      GROUP_ID: 1
-      CONFIG_STORAGE_TOPIC: connect_configs
-      OFFSET_STORAGE_TOPIC: connect_offsets
-      STATUS_STORAGE_TOPIC: connect_statuses
-      CONNECT_PLUGIN_PATH: /kafka/connect
-    depends_on:
-      - kafka
-    networks:
-      - node-challenge-task
+    depends_on: [zookeeper]
+    networks: [node-challenge-task]
 
   postgres:
     image: postgres:15-alpine
-    container_name: postgres
+    hostname: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: tokens
-    ports:
-      - "5432:5432"
+    command:
+      - postgres
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+    ports: ["5432:5432"]
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tokens"]
       interval: 5s
       timeout: 5s
-      retries: 5
-    command: [
-      "postgres",
-      "-c", "wal_level=logical",
-      "-c", "max_wal_senders=10",
-      "-c", "max_replication_slots=10"
-    ]
-    networks:
-      - node-challenge-task
+      retries: 10
+    networks: [node-challenge-task]
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    hostname: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: "False"
-    ports:
-      - "8080:80"
-    depends_on:
-      - postgres
+    ports: ["8080:80"]
+    depends_on: [postgres]
     volumes:
       - pgadmin-data:/var/lib/pgadmin
-    networks:
-      - node-challenge-task
+    networks: [node-challenge-task]
 
   kafdrop:
     image: obsidiandynamics/kafdrop
     hostname: kafdrop
-    ports:
-      - "9000:9000"
+    ports: ["9000:9000"]
     environment:
       KAFKA_BROKERCONNECT: kafka:29092
-    depends_on:
-      - kafka
-    networks:
-      - node-challenge-task
+    depends_on: [kafka]
+    networks: [node-challenge-task]
 
   redis:
     image: redis:7-alpine
-    container_name: redis-service
-    ports:
-      - "6379:6379"
+    hostname: redis
+    ports: ["6379:6379"]
     volumes:
       - redis-data:/data
-    networks:
-      - node-challenge-task
+    networks: [node-challenge-task]
+
+  connect:
+    image: debezium/connect:2.5
+    hostname: connect
+    ports: [ "8083:8083" ]
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      GROUP_ID: connect-cluster
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_PLUGIN_PATH: /kafka/connect
+    depends_on: [ kafka, postgres ]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8083/connectors > /dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks: [node-challenge-task]
+
+
+
+
+
+
+
+
 
 
 

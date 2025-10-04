@@ -1,7 +1,8 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { TokenInfo } from "../../../application/dto/token-info";
-import { TokenPrice } from "../../model/token-price";
-import { TokenPriceService } from "../../../application/service/token-price.service";
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+
+import { TokenInfo } from '../../../application/dto/token-info';
+import { TokenPriceService } from '../../../application/service/token-price.service';
+import { TokenPrice } from '../../model/token-price';
 
 @Injectable()
 export abstract class TokenPriceAdapter implements OnModuleInit {

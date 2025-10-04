@@ -1,12 +1,13 @@
-import { Module } from "@nestjs/common";
-import { ClsModule } from "nestjs-cls";
+import { Module } from '@nestjs/common';
 import {
   ClsPluginTransactional,
   getTransactionHostToken,
-} from "@nestjs-cls/transactional";
-import { TransactionalAdapterDrizzleOrm } from "@nestjs-cls/transactional-adapter-drizzle-orm";
-import { SharedDrizzlePgModule } from "../shared-drizzle-pg/shared-drizzle-pg.module";
-import { AppDrizzleTransactionHost } from "./app-drizzle-transaction-host";
+} from '@nestjs-cls/transactional';
+import { TransactionalAdapterDrizzleOrm } from '@nestjs-cls/transactional-adapter-drizzle-orm';
+import { ClsModule } from 'nestjs-cls';
+
+import { SharedDrizzlePgModule } from '../shared-drizzle-pg/shared-drizzle-pg.module';
+import { AppDrizzleTransactionHost } from './app-drizzle-transaction-host';
 
 @Module({
   imports: [
@@ -15,16 +16,16 @@ import { AppDrizzleTransactionHost } from "./app-drizzle-transaction-host";
         new ClsPluginTransactional({
           imports: [SharedDrizzlePgModule],
           adapter: new TransactionalAdapterDrizzleOrm({
-            drizzleInstanceToken: "DB",
+            drizzleInstanceToken: 'DB',
           }),
-          connectionName: "pg",
+          connectionName: 'pg',
         }),
       ],
     }),
   ],
   providers: [
     {
-      useExisting: getTransactionHostToken("pg"),
+      useExisting: getTransactionHostToken('pg'),
       provide: AppDrizzleTransactionHost,
     },
   ],

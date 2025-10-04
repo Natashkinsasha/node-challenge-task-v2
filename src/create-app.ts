@@ -1,9 +1,10 @@
-import { NestFactory } from "@nestjs/core";
+import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
-} from "@nestjs/platform-fastify";
-import { AppModule } from "./app.module";
+} from '@nestjs/platform-fastify';
+
+import { AppModule } from './app.module';
 
 export async function createApp(): Promise<NestFastifyApplication> {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -13,7 +14,7 @@ export async function createApp(): Promise<NestFastifyApplication> {
     }),
     {
       cors: true,
-    }
+    },
   );
   return app;
 }

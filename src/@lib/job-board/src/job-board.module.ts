@@ -1,19 +1,20 @@
-import { createBullBoard } from "@bull-board/api";
-import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
-import { FastifyAdapter } from "@bull-board/fastify";
-import type { FastifyBasicAuthOptions } from "@fastify/basic-auth";
-import basicAuth from "@fastify/basic-auth";
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { FastifyAdapter } from '@bull-board/fastify';
+import type { FastifyBasicAuthOptions } from '@fastify/basic-auth';
+import basicAuth from '@fastify/basic-auth';
 import type {
   DynamicModule,
   ModuleMetadata,
   NestModule,
   Type,
-} from "@nestjs/common";
-import { HttpStatus, Module, UnauthorizedException } from "@nestjs/common";
-import { HttpAdapterHost, ModuleRef } from "@nestjs/core";
-import { Queue } from "bullmq";
-import type { FastifyInstance } from "fastify";
-import { QueueRegistryService } from "../../job/src";
+} from '@nestjs/common';
+import { HttpStatus, Module, UnauthorizedException } from '@nestjs/common';
+import { HttpAdapterHost, ModuleRef } from '@nestjs/core';
+import { Queue } from 'bullmq';
+import type { FastifyInstance } from 'fastify';
+
+import { QueueRegistryService } from '../../job/src';
 
 export interface JobBoardModuleOptions {
   route: string;
@@ -23,7 +24,7 @@ export interface JobBoardModuleOptions {
 }
 
 export interface JobBoardModuleAsyncOptions
-  extends Pick<ModuleMetadata, "imports"> {
+  extends Pick<ModuleMetadata, 'imports'> {
   useFactory?: (
     ...args: any[]
   ) => Promise<JobBoardModuleOptions> | JobBoardModuleOptions;
@@ -38,14 +39,14 @@ export interface JobBoardModuleOptionsFactory {
     | JobBoardModuleOptions;
 }
 
-const JOB_BOARD_OPTIONS = "JOB_BOARD_OPTIONS";
+const JOB_BOARD_OPTIONS = 'JOB_BOARD_OPTIONS';
 
 @Module({})
 export class JobBoardModule implements NestModule {
   constructor(
     private readonly moduleRef: ModuleRef,
     private readonly adapterHost: HttpAdapterHost,
-    private readonly queueRegistry: QueueRegistryService
+    private readonly queueRegistry: QueueRegistryService,
   ) {}
 
   static forRootAsync(options: JobBoardModuleAsyncOptions): DynamicModule {
@@ -57,12 +58,13 @@ export class JobBoardModule implements NestModule {
   }
 
   private static createAsyncProviders(options: JobBoardModuleAsyncOptions) {
-    if (options.useFactory) {
+    const userFactory = options.useFactory;
+    if (userFactory) {
       return [
         {
           provide: JOB_BOARD_OPTIONS,
           useFactory: async (...args: any[]) => {
-            const config = await options.useFactory!(...args);
+            const config = await userFactory(...args);
             return {
               enabled: true,
               ...config,
@@ -127,7 +129,7 @@ export class JobBoardModule implements NestModule {
       JOB_BOARD_OPTIONS,
       {
         strict: false,
-      }
+      },
     );
 
     if (!options?.enabled) {
@@ -144,18 +146,18 @@ export class JobBoardModule implements NestModule {
     const queueNames = this.queueRegistry.getAll();
     createBullBoard({
       queues: this.getQueuesByNames(queueNames).map(
-        (queue) => new BullMQAdapter(queue)
+        (queue) => new BullMQAdapter(queue),
       ),
       serverAdapter,
     });
 
     const app = this.adapterHost.httpAdapter.getInstance<FastifyInstance>();
 
-    const authenticate: FastifyBasicAuthOptions["authenticate"] = true;
+    const authenticate: FastifyBasicAuthOptions['authenticate'] = true;
 
-    const validate: FastifyBasicAuthOptions["validate"] = async (
+    const validate: FastifyBasicAuthOptions['validate'] = async (
       user,
-      pass
+      pass,
     ) => {
       if (user !== username || pass !== password) {
         throw new UnauthorizedException();
@@ -170,7 +172,7 @@ export class JobBoardModule implements NestModule {
     const bullboardPlugin = serverAdapter.registerPlugin();
 
     app.register(async (instance) => {
-      instance.addHook("onRequest", (req, reply, next) => {
+      instance.addHook('onRequest', (req, reply, next) => {
         instance.basicAuth(req, reply, function (error: any) {
           if (!error) {
             return next();

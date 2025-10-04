@@ -1,8 +1,9 @@
-import { Module } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { JobBoardModule } from "../../@lib/job-board/src";
-import { SharedConfigModule } from "../shared-config/shared-config.module";
-import { SharedJobModule } from "../shared-job";
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+import { JobBoardModule } from '../../@lib/job-board/src';
+import { SharedConfigModule } from '../shared-config/shared-config.module';
+import { SharedJobModule } from '../shared-job';
 
 @Module({
   imports: [
@@ -11,11 +12,11 @@ import { SharedJobModule } from "../shared-job";
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
-          route: "/queues",
-          username: configService.getOrThrow("BULL_BOARD_USERNAME"),
-          password: configService.getOrThrow("BULL_BOARD_PASSWORD"),
+          route: '/queues',
+          username: configService.getOrThrow('BULL_BOARD_USERNAME'),
+          password: configService.getOrThrow('BULL_BOARD_PASSWORD'),
           enabled:
-            configService.getOrThrow("BULL_BOARD_ENABLED") === "true"
+            configService.getOrThrow('BULL_BOARD_ENABLED') === 'true'
               ? true
               : false,
         };

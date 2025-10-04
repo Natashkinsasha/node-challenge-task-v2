@@ -2,17 +2,17 @@ import {
   BullModule,
   RegisterQueueOptions,
   SharedBullAsyncConfiguration,
-} from "@nestjs/bullmq";
-import type { DynamicModule } from "@nestjs/common";
-import { Module } from "@nestjs/common";
+} from '@nestjs/bullmq';
+import type { DynamicModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 
-import { QueueRegistryService } from "./queue-registry.service";
+import { QueueRegistryService } from './queue-registry.service';
 
 @Module({})
 export class JobModule {
   private static queueRegistryService = new QueueRegistryService();
   public static forRootAsync(
-    asyncBullConfig: SharedBullAsyncConfiguration
+    asyncBullConfig: SharedBullAsyncConfiguration,
   ): DynamicModule {
     return {
       module: JobModule,
@@ -28,7 +28,7 @@ export class JobModule {
   }
 
   static registerQueue(
-    options: RegisterQueueOptions & { name: string }
+    options: RegisterQueueOptions & { name: string },
   ): DynamicModule {
     return {
       module: JobModule,

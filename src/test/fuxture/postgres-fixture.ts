@@ -1,8 +1,7 @@
-import { sql } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { GenericContainer, StartedTestContainer } from "testcontainers";
-
-import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { sql } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
 
 export class PostgresFixture {
   private constructor() {}
@@ -25,7 +24,7 @@ export class PostgresFixture {
 
   public migrate(db: NodePgDatabase) {
     return migrate(db, {
-      migrationsFolder: "src/@logic/token-ticker/infrastructure/migration",
+      migrationsFolder: 'src/@logic/token-ticker/infrastructure/migration',
     });
   }
 
@@ -33,10 +32,10 @@ export class PostgresFixture {
     const testId = Math.random().toString(36).substring(7);
     const port = 5432;
     const name = `postgres-test-${testId}`;
-    const user = "testuser";
-    const dbName = "testdb";
-    const password = "testpassword";
-    this.container = await new GenericContainer("postgres:15-alpine")
+    const user = 'testuser';
+    const dbName = 'testdb';
+    const password = 'testpassword';
+    this.container = await new GenericContainer('postgres:15-alpine')
       .withName(name)
       .withEnvironment({
         POSTGRES_USER: user,

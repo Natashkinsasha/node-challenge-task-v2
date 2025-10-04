@@ -1,16 +1,16 @@
 import {
+  boolean,
   integer,
   pgTable,
   text,
-  uuid,
-  boolean,
   timestamp,
-} from "drizzle-orm/pg-core";
+  uuid,
+} from 'drizzle-orm/pg-core';
 
-export const chainTable = pgTable("chains", {
-  id: uuid("id").primaryKey().defaultRandom().notNull(),
-  debridgeId: integer("debridge_id").unique().notNull(),
-  name: text("name").notNull(),
-  isEnabled: boolean("is_enabled").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const chainTable = pgTable('chains', {
+  id: uuid('id').primaryKey().defaultRandom().notNull(),
+  debridgeId: integer('debridge_id').unique().notNull(),
+  name: text('name').notNull(),
+  isEnabled: boolean('is_enabled').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });

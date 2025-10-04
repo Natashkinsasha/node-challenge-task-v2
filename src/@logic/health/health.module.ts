@@ -1,9 +1,10 @@
-import { Module } from "@nestjs/common";
-import { TerminusModule } from "@nestjs/terminus";
-import { HealthMaintainer } from "./application/health.maintainer";
-import { HealthController } from "./presentation/health.controller";
-import { PgHealthIndicator } from "./health-indicator/pg-health-indicator.service";
-import { SharedClsModule } from "../../@shared/shared-cls/shared-cls.module";
+import { Module } from '@nestjs/common';
+import { TerminusModule } from '@nestjs/terminus';
+
+import { SharedClsModule } from '../../@shared/shared-cls/shared-cls.module';
+import { HealthMaintainer } from './application/health.maintainer';
+import { PgHealthIndicator } from './health-indicator/pg-health-indicator.service';
+import { HealthController } from './presentation/health.controller';
 
 @Module({
   imports: [TerminusModule, SharedClsModule],

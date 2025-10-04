@@ -1,7 +1,8 @@
-import { RedisService } from "@liaoliaots/nestjs-redis";
-import { forwardRef, Module } from "@nestjs/common";
-import { JobModule } from "../../@lib/job/src";
-import { SharedRedisModule } from "../shared-redis";
+import { RedisService } from '@liaoliaots/nestjs-redis';
+import { forwardRef, Module } from '@nestjs/common';
+
+import { JobModule } from '../../@lib/job/src';
+import { SharedRedisModule } from '../shared-redis';
 
 @Module({
   imports: [

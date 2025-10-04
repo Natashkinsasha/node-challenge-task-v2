@@ -1,9 +1,9 @@
-import * as request from 'supertest';
-import * as tables from "../src/@logic/token-ticker/infrastructure/table";
-import { AppFixture } from './fixture/app.fixture';
 import { randomUUID } from 'crypto';
-import * as schema from '../src/@logic/token-ticker/infrastructure/table';
+import * as request from 'supertest';
 
+import * as tables from '../src/@logic/token-ticker/infrastructure/table';
+import * as schema from '../src/@logic/token-ticker/infrastructure/table';
+import { AppFixture } from './fixture/app.fixture';
 
 describe('Token E2E (POST /api/v1/tokens/)', () => {
   let app: AppFixture;
@@ -21,24 +21,25 @@ describe('Token E2E (POST /api/v1/tokens/)', () => {
 
     const chainId = randomUUID();
     const data = {
-        id: chainId,
-        debridgeId: 65001,
-        name: 'Test Chain',
-        isEnabled: true,
-    }
-    const [chain] = await app.getDb()
+      id: chainId,
+      debridgeId: 65001,
+      name: 'Test Chain',
+      isEnabled: true,
+    };
+    const [chain] = await app
+      .getDb()
       .insert(schema.chainTable)
-        .values(data)
-        .onConflictDoUpdate({
-            target: tables.chainTable.debridgeId,
-            set: {
-                name: data.name,
-                isEnabled: data.isEnabled,
-            },
-        })
-        .returning();
+      .values(data)
+      .onConflictDoUpdate({
+        target: tables.chainTable.debridgeId,
+        set: {
+          name: data.name,
+          isEnabled: data.isEnabled,
+        },
+      })
+      .returning();
 
-      const address = randomUUID();
+    const address = randomUUID();
 
     const payload = {
       address,
@@ -52,9 +53,7 @@ describe('Token E2E (POST /api/v1/tokens/)', () => {
       priority: 1,
     };
 
-    const res = await request(server)
-      .post('/api/v1/tokens')
-      .send(payload);
+    const res = await request(server).post('/api/v1/tokens').send(payload);
 
     expect(res.status).toBe(201);
 

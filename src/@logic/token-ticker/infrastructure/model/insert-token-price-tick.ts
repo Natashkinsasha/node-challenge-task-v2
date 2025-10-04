@@ -1,6 +1,7 @@
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { tokenPriceTickTable } from "../table";
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+
+import { tokenPriceTickTable } from '../table';
 
 export const insertTokenPriceTickSchema =
   createInsertSchema(tokenPriceTickTable);

@@ -1,16 +1,17 @@
-import { DrizzlePGModule } from "@knaadh/nestjs-drizzle-pg";
+import { DrizzlePGModule } from '@knaadh/nestjs-drizzle-pg';
+import { Provider, Type } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import {
   ClsPluginTransactional,
   getTransactionHostToken,
-} from "@nestjs-cls/transactional";
-import { TransactionalAdapterDrizzleOrm } from "@nestjs-cls/transactional-adapter-drizzle-orm";
-import { Provider, Type } from "@nestjs/common";
-import { Test, TestingModule } from "@nestjs/testing";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { ClsModule } from "nestjs-cls";
-import * as schema from "../../@logic/token-ticker/infrastructure/table";
-import { AppDrizzleTransactionHost } from "../../@shared/shared-cls/app-drizzle-transaction-host";
-import { PostgresFixture } from "./postgres-fixture";
+} from '@nestjs-cls/transactional';
+import { TransactionalAdapterDrizzleOrm } from '@nestjs-cls/transactional-adapter-drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { ClsModule } from 'nestjs-cls';
+
+import * as schema from '../../@logic/token-ticker/infrastructure/table';
+import { AppDrizzleTransactionHost } from '../../@shared/shared-cls/app-drizzle-transaction-host';
+import { PostgresFixture } from './postgres-fixture';
 
 export class TestingModuleWithDbFixture {
   private postgresFixture?: PostgresFixture;
@@ -21,7 +22,7 @@ export class TestingModuleWithDbFixture {
 
   public getDb() {
     if (!this.db) {
-      throw new Error("DB is not initialized");
+      throw new Error('DB is not initialized');
     }
     return this.db;
   }
@@ -38,9 +39,9 @@ export class TestingModuleWithDbFixture {
     this.module = await Test.createTestingModule({
       imports: [
         DrizzlePGModule.register({
-          tag: "DB",
+          tag: 'DB',
           pg: {
-            connection: "pool",
+            connection: 'pool',
             config: {
               connectionString: postgresUrl,
             },
@@ -51,12 +52,12 @@ export class TestingModuleWithDbFixture {
           plugins: [
             new ClsPluginTransactional({
               adapter: new TransactionalAdapterDrizzleOrm({
-                drizzleInstanceToken: "DB",
+                drizzleInstanceToken: 'DB',
                 defaultTxOptions: {
-                  isolationLevel: "read committed",
+                  isolationLevel: 'read committed',
                 },
               }),
-              connectionName: "pg",
+              connectionName: 'pg',
             }),
           ],
         }),
@@ -64,13 +65,13 @@ export class TestingModuleWithDbFixture {
       providers: [
         ...this.providers,
         {
-          useExisting: getTransactionHostToken("pg"),
+          useExisting: getTransactionHostToken('pg'),
           provide: AppDrizzleTransactionHost,
         },
       ],
     }).compile();
     await this.module.init();
-    this.db = this.module.get("DB");
+    this.db = this.module.get('DB');
   }
 
   public async stop() {
@@ -84,17 +85,17 @@ export class TestingModuleWithDbFixture {
   }
 
   public get<TInput = any, TResult = TInput>(
-    typeOrToken: Type<TInput> | Function | string | symbol
+    typeOrToken: Type<TInput> | Function | string | symbol,
   ): TResult {
     if (!this.module) {
-      throw new Error("Module is not initialized");
+      throw new Error('Module is not initialized');
     }
     return this.module?.get(typeOrToken);
   }
 
   public async dropAllAndMigrate() {
     if (!this.db) {
-      throw new Error("DB is not initialized");
+      throw new Error('DB is not initialized');
     }
     await this.postgresFixture?.dropAllAndMigrate(this.db);
   }

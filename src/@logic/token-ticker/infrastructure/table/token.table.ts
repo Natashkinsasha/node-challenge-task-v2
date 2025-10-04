@@ -1,39 +1,40 @@
-import { relations } from "drizzle-orm";
+import { relations } from 'drizzle-orm';
 import {
-  pgTable,
-  uuid,
-  text,
-  smallint,
   boolean,
   integer,
+  pgTable,
+  smallint,
+  text,
   timestamp,
   uniqueIndex,
-} from "drizzle-orm/pg-core";
-import { chainTable } from "./chain.table";
+  uuid,
+} from 'drizzle-orm/pg-core';
+
+import { chainTable } from './chain.table';
 
 export const tokenTable = pgTable(
-  "tokens",
+  'tokens',
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    address: text("address").notNull(),
-    chainId: uuid("chain_id")
+    id: uuid('id').primaryKey().defaultRandom(),
+    address: text('address').notNull(),
+    chainId: uuid('chain_id')
       .notNull()
       .references(() => chainTable.id),
-    symbol: text("symbol").notNull(),
-    name: text("name").notNull(),
-    decimals: smallint("decimals").default(0).notNull(),
-    isNative: boolean("is_native").default(false).notNull(),
-    isProtected: boolean("is_protected").default(false).notNull(),
-    lastUpdateAuthor: text("last_update_author"),
-    priority: integer("priority").default(0).notNull(),
-    timestamp: timestamp("timestamp").defaultNow().notNull(),
+    symbol: text('symbol').notNull(),
+    name: text('name').notNull(),
+    decimals: smallint('decimals').default(0).notNull(),
+    isNative: boolean('is_native').default(false).notNull(),
+    isProtected: boolean('is_protected').default(false).notNull(),
+    lastUpdateAuthor: text('last_update_author'),
+    priority: integer('priority').default(0).notNull(),
+    timestamp: timestamp('timestamp').defaultNow().notNull(),
   },
   (table) => ({
-    chainAddressUq: uniqueIndex("tokens_chain_id_address_uq").on(
+    chainAddressUq: uniqueIndex('tokens_chain_id_address_uq').on(
       table.chainId,
-      table.address
+      table.address,
     ),
-  })
+  }),
 );
 
 export const tokenRelations = relations(tokenTable, ({ one }) => ({

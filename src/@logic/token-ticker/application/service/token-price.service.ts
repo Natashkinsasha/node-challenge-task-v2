@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { TokenInfo } from "../dto/token-info";
-import { TokenPrice } from "../../infrastructure/model/token-price";
-import { TokenPriceAdapter } from "../../infrastructure/adapter/token-price/token-price.adapter";
+import { Injectable } from '@nestjs/common';
+
+import { TokenPriceAdapter } from '../../infrastructure/adapter/token-price/token-price.adapter';
+import { TokenPrice } from '../../infrastructure/model/token-price';
+import { TokenInfo } from '../dto/token-info';
 
 @Injectable()
 export class TokenPriceService {
@@ -15,7 +16,7 @@ export class TokenPriceService {
     return Promise.all(
       this.adapters.map((adapter) => {
         return adapter.getPrice(tokenInfo);
-      })
+      }),
     );
   }
 }

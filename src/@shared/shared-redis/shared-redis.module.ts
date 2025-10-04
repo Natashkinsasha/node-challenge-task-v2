@@ -1,7 +1,8 @@
-import { RedisModule } from "@liaoliaots/nestjs-redis";
-import { Logger, Module } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { SharedConfigModule } from "../shared-config/shared-config.module";
+import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { Logger, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+import { SharedConfigModule } from '../shared-config/shared-config.module';
 
 @Module({
   imports: [
@@ -9,13 +10,13 @@ import { SharedConfigModule } from "../shared-config/shared-config.module";
       {
         imports: [SharedConfigModule],
         useFactory: (configService: ConfigService) => {
-          const redisUrl: string = configService.getOrThrow("REDIS_URL");
-          const redisDbNumber: number = Number(
-            configService.getOrThrow("REDIS_DB_NUMBER")
+          const redisUrl: string = configService.getOrThrow('REDIS_URL');
+          const redisDbNumber = Number(
+            configService.getOrThrow('REDIS_DB_NUMBER'),
           );
           Logger.debug(
             `Redis uri: ${redisUrl}. Db number: ${redisDbNumber}`,
-            "RedisModule"
+            'RedisModule',
           );
           return {
             config: [
@@ -26,10 +27,10 @@ import { SharedConfigModule } from "../shared-config/shared-config.module";
                 onClientCreated: (client) => {
                   Logger.debug(
                     `Connected to redis: ${redisUrl}/${redisDbNumber}`,
-                    "RedisModule"
+                    'RedisModule',
                   );
-                  client.on("error", (error) => {
-                    Logger.error(`Redis error: ${error}`, "RedisModule");
+                  client.on('error', (error) => {
+                    Logger.error(`Redis error: ${error}`, 'RedisModule');
                   });
                 },
               },
@@ -38,7 +39,7 @@ import { SharedConfigModule } from "../shared-config/shared-config.module";
         },
         inject: [ConfigService],
       },
-      false
+      false,
     ),
   ],
   exports: [RedisModule],

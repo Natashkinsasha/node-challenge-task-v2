@@ -1,6 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { InsertToken } from "../../infrastructure/model/insert-token";
-import { TokenRepository } from "../../infrastructure/repository/token.repository";
+import { Injectable } from '@nestjs/common';
+
+import { InsertToken } from '../../infrastructure/model/insert-token';
+import { TokenRepository } from '../../infrastructure/repository/token.repository';
 
 @Injectable()
 export class TokenMaintainer {

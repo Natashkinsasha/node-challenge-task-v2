@@ -1,1 +1,1 @@
-export { SharedJobModule } from "./shared-job.module";
+export { SharedJobModule } from './shared-job.module';

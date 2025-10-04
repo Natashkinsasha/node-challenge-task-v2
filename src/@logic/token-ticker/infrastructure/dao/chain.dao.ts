@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { desc } from "drizzle-orm";
-import { AppDrizzleTransactionHost } from "../../../../@shared/shared-cls/app-drizzle-transaction-host";
+import { Injectable } from '@nestjs/common';
+import { desc } from 'drizzle-orm';
 
-import * as tables from "../table";
+import { AppDrizzleTransactionHost } from '../../../../@shared/shared-cls/app-drizzle-transaction-host';
+import * as tables from '../table';
 
 @Injectable()
 export class ChainDao {
   constructor(private readonly txHost: AppDrizzleTransactionHost) {}
 
   public async upsert(
-    data: typeof tables.chainTable.$inferInsert
+    data: typeof tables.chainTable.$inferInsert,
   ): Promise<typeof tables.chainTable.$inferSelect> {
     const [row] = await this.txHost.tx
       .insert(tables.chainTable)

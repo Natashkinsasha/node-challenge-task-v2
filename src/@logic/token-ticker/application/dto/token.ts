@@ -1,5 +1,6 @@
-import { z } from "zod";
-import { selectTokenSchema } from "../../infrastructure/model/select-token";
+import { z } from 'zod';
+
+import { selectTokenSchema } from '../../infrastructure/model/select-token';
 
 export const tokenSchema = selectTokenSchema.omit({
   timestamp: true,
