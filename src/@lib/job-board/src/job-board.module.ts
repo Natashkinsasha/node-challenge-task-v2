@@ -11,7 +11,6 @@ import type {
 } from '@nestjs/common';
 import { HttpStatus, Module, UnauthorizedException } from '@nestjs/common';
 import { HttpAdapterHost, ModuleRef } from '@nestjs/core';
-import { Queue } from 'bullmq';
 import type { FastifyInstance } from 'fastify';
 
 import { QueueRegistryService } from '../../job/src';
@@ -114,16 +113,6 @@ export class JobBoardModule implements NestModule {
     return [];
   }
 
-  private getQueueByName(queueName: string): Queue {
-    return this.moduleRef.get<Queue, Queue>(`BullQueue_${queueName}`, {
-      strict: false,
-    });
-  }
-
-  private getQueuesByNames(queueNames: string[]): Queue[] {
-    return queueNames.map((name) => this.getQueueByName(name));
-  }
-
   configure() {
     const options = this.moduleRef.get<JobBoardModuleOptions>(
       JOB_BOARD_OPTIONS,
@@ -143,11 +132,9 @@ export class JobBoardModule implements NestModule {
     const serverAdapter = new FastifyAdapter();
     serverAdapter.setBasePath(route);
 
-    const queueNames = this.queueRegistry.getAll();
+    const queues = this.queueRegistry.getAll();
     createBullBoard({
-      queues: this.getQueuesByNames(queueNames).map(
-        (queue) => new BullMQAdapter(queue),
-      ),
+      queues: queues.map((queue) => new BullMQAdapter(queue)),
       serverAdapter,
     });
 

@@ -1,10 +1,11 @@
 import {
-  BullModule,
+  BullModule, getQueueToken,
   RegisterQueueOptions,
   SharedBullAsyncConfiguration,
 } from '@nestjs/bullmq';
 import type { DynamicModule } from '@nestjs/common';
 import { Module } from '@nestjs/common';
+import {Queue} from "bullmq";
 
 import { QueueRegistryService } from './queue-registry.service';
 
@@ -40,11 +41,11 @@ export class JobModule {
         },
         {
           provide: Symbol(`JOB_QUEUE_REGISTER__${options.name}`),
-          useFactory: (registry: QueueRegistryService) => {
-            registry.add(options.name);
+          useFactory: (registry: QueueRegistryService, queue: Queue) => {
+            registry.add(queue);
             return true;
           },
-          inject: [QueueRegistryService],
+          inject: [QueueRegistryService, getQueueToken(options.name)],
         },
       ],
       exports: [BullModule, QueueRegistryService],
