@@ -40,21 +40,9 @@ export class AppFixture {
   public static async create(
     _seed: number = Math.random(),
   ): Promise<AppFixture> {
-    const postgresFixture = PostgresFixture.create();
-    const url = await postgresFixture.getUrl();
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider(DrizzlePgConfig)
-      .useValue(new TestDrizzlePgConfig(url))
-      .compile();
-
-    const app = moduleRef.createNestApplication<NestFastifyApplication>(
-      new FastifyAdapter(),
-    );
-    await app.init();
-    await app.init();
-    await app.getHttpAdapter().getInstance().ready();
+    const postgresFixture = await PostgresFixture.create();
+    const url = postgresFixture.getUrl();
+    const app = await this.createApp(url);
     return new AppFixture(app, postgresFixture);
   }
 
@@ -73,5 +61,21 @@ export class AppFixture {
 
   public dropAllAndMigrate() {
     return this.postgresFixture.dropAllAndMigrate(this.getDb());
+  }
+
+  private static async createApp(url: string) {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(DrizzlePgConfig)
+      .useValue(new TestDrizzlePgConfig(url))
+      .compile();
+
+    const app = moduleRef.createNestApplication<NestFastifyApplication>(
+      new FastifyAdapter(),
+    );
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+    return app;
   }
 }

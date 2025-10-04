@@ -33,25 +33,27 @@ export class TestingModuleWithDbFixture {
   }
 
   public async start() {
-    this.postgresFixture = PostgresFixture.create();
+    this.postgresFixture = await PostgresFixture.create();
 
-    const postgresUrl = await this.postgresFixture.getUrl();
+    const postgresUrl = this.postgresFixture.getUrl();
 
     this.module = await Test.createTestingModule({
       imports: [
-        DrizzlePGModule.register({
-          tag: 'DB',
-          pg: {
-            connection: 'pool',
-            config: {
-              connectionString: postgresUrl,
-            },
-          },
-          config: { schema },
-        }),
         ClsModule.forRoot({
           plugins: [
             new ClsPluginTransactional({
+              imports: [
+                DrizzlePGModule.register({
+                  tag: 'DB',
+                  pg: {
+                    connection: 'pool',
+                    config: {
+                      connectionString: postgresUrl,
+                    },
+                  },
+                  config: { schema },
+                }),
+              ],
               adapter: new TransactionalAdapterDrizzleOrm({
                 drizzleInstanceToken: 'DB',
                 defaultTxOptions: {

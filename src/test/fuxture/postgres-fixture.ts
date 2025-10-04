@@ -7,13 +7,32 @@ import { Memoize } from 'typescript-memoize';
 import * as tables from '../../@logic/token-ticker/infrastructure/table';
 
 export class PostgresFixture {
-  private constructor() {}
-
-  private container: StartedTestContainer | null = null;
+  private constructor(
+    private readonly container: StartedTestContainer,
+    private readonly user: string,
+    private readonly password: string,
+    private readonly dbName: string,
+    private readonly port: number,
+  ) {}
 
   @Memoize()
-  public static create(_seed: number = Math.random()) {
-    return new PostgresFixture();
+  public static async create(_seed: number = Math.random()) {
+    const testId = Math.random().toString(36).substring(7);
+    const port = 5432;
+    const name = `postgres-test-${testId}`;
+    const user = 'testuser';
+    const password = 'testpassword';
+    const dbName = 'testdb';
+    const container = await new GenericContainer('postgres:15-alpine')
+      .withName(name)
+      .withEnvironment({
+        POSTGRES_USER: user,
+        POSTGRES_PASSWORD: password,
+        POSTGRES_DB: dbName,
+      })
+      .withExposedPorts(port)
+      .start();
+    return new PostgresFixture(container, user, password, dbName, port);
   }
 
   public async dropAllAndMigrate(db: NodePgDatabase<typeof tables>) {
@@ -33,29 +52,13 @@ export class PostgresFixture {
   }
 
   @Memoize()
-  public async getUrl(dbName: string = 'testdb') {
-    const testId = Math.random().toString(36).substring(7);
-    const port = 5432;
-    const name = `postgres-test-${testId}`;
-    const user = 'testuser';
-    const password = 'testpassword';
-    this.container = await new GenericContainer('postgres:15-alpine')
-      .withName(name)
-      .withEnvironment({
-        POSTGRES_USER: user,
-        POSTGRES_PASSWORD: password,
-        POSTGRES_DB: dbName,
-      })
-      .withExposedPorts(port)
-      .start();
-
+  public getUrl(): string {
     const host = this.container.getHost();
-    const mappedPort = this.container.getMappedPort(port);
-    return `postgres://${user}:${password}@${host}:${mappedPort}/${dbName}`;
+    const mappedPort = this.container.getMappedPort(this.port);
+    return `postgres://${this.user}:${this.password}@${host}:${mappedPort}/${this.dbName}`;
   }
 
   public async stop() {
-    await this.container?.stop();
-    this.container = null;
+    await this.container.stop();
   }
 }

@@ -12,10 +12,8 @@ import { TokenRepository } from '../src/@logic/token-ticker/infrastructure/repos
 import * as tables from '../src/@logic/token-ticker/infrastructure/table';
 import { AppDrizzleTransactionHost } from '../src/@shared/shared-cls/app-drizzle-transaction-host';
 import { SharedClsModule } from '../src/@shared/shared-cls/shared-cls.module';
-import { Transaction } from '../src/@shared/shared-cls/transaction';
 
 class Inserter {
-  @Transaction()
   public async execute(
     db: NodePgDatabase<typeof tables>,
     tokenRepository: TokenRepository,

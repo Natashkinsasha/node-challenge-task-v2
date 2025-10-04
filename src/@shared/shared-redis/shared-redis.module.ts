@@ -19,8 +19,11 @@ import { SharedConfigModule } from '../shared-config/shared-config.module';
             'RedisModule',
           );
           return {
+            readyLog: true,
+            errorLog: true,
             config: [
               {
+                closeClient: true,
                 url: redisUrl,
                 db: redisDbNumber,
                 connectTimeout: 10000,

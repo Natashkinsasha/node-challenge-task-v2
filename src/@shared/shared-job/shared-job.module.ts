@@ -1,5 +1,5 @@
 import { RedisService } from '@liaoliaots/nestjs-redis';
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 
 import { JobModule } from '../../@lib/job/src';
 import { SharedRedisModule } from '../shared-redis';
@@ -7,7 +7,7 @@ import { SharedRedisModule } from '../shared-redis';
 @Module({
   imports: [
     JobModule.forRootAsync({
-      imports: [forwardRef(() => SharedRedisModule)],
+      imports: [SharedRedisModule],
       inject: [RedisService],
       useFactory: (redisService: RedisService) => {
         return {

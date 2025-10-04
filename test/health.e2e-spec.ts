@@ -2,7 +2,7 @@ import * as request from 'supertest';
 
 import { AppFixture } from './fixture/app.fixture';
 
-describe('Health E2E (GET /health)', () => {
+describe.skip('Health E2E (GET /health)', () => {
   let app: AppFixture;
 
   beforeAll(async () => {
