@@ -11,6 +11,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import { chainTable } from './chain.table';
+import { tokenLogoTable } from './token-logo.table';
 
 export const tokenTable = pgTable(
   'tokens',
@@ -20,6 +21,9 @@ export const tokenTable = pgTable(
     chainId: uuid('chain_id')
       .notNull()
       .references(() => chainTable.id),
+    logoId: uuid('logo_id')
+      .notNull()
+      .references(() => tokenLogoTable.id),
     symbol: text('symbol').notNull(),
     name: text('name').notNull(),
     decimals: smallint('decimals').default(0).notNull(),

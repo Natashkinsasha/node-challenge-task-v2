@@ -76,6 +76,7 @@ describe('TokenPriceUpdateService', () => {
       lastUpdateAuthor: 'author-1',
       priority: 0,
       timestamp: new Date('2023-01-01T00:00:00.000Z'),
+      logoId: 'logo-1',
       chain: {
         id: 'chain-1',
         debridgeId: 1,

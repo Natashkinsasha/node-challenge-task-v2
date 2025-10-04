@@ -24,8 +24,12 @@ describe('TokenDao (integration)', () => {
   it('should upsert token and fetch with relation (chain)', async () => {
     const tokenDao = fixture.get(TokenDao);
     const chainId = randomUUID();
+    const logoId = randomUUID();
 
-    await seed(fixture.getDb(), { chains: schema.chainTable }).refine((f) => {
+    await seed(fixture.getDb(), {
+      chains: schema.chainTable,
+      token_logos: schema.tokenLogoTable,
+    }).refine((f) => {
       return {
         chains: {
           count: 1,
@@ -33,13 +37,21 @@ describe('TokenDao (integration)', () => {
             id: f.valuesFromArray({ values: [chainId] }),
           },
         },
+        token_logos: {
+          count: 1,
+          columns: {
+            id: f.valuesFromArray({ values: [logoId] }),
+          },
+        },
       };
     });
+
     const tokenId = randomUUID();
     const initial = await tokenDao.upsert({
       id: tokenId,
       address: '0x0000000000000000000000000000000000000000',
-      chainId: chainId,
+      chainId,
+      logoId,
       symbol: 'ETH',
       name: 'Ether',
       decimals: 18,
@@ -51,6 +63,7 @@ describe('TokenDao (integration)', () => {
     });
     expect(initial.id).toBe(tokenId);
     expect(initial.chainId).toBe(chainId);
+    expect(initial.logoId).toBe(logoId);
     expect(initial.address).toBe('0x0000000000000000000000000000000000000000');
     expect(initial.symbol).toBe('ETH');
     expect(initial.name).toBe('Ether');

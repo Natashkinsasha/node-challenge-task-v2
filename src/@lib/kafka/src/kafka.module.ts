@@ -2,9 +2,9 @@ import type { ModuleMetadata } from '@nestjs/common';
 import { DynamicModule, Module } from '@nestjs/common';
 
 import { KafkaModuleOptions } from './kafaka.types';
+import { KAFKA_OPTIONS } from './kafka.constants';
 import { KafkaClientService } from './kafka-client.service';
 import { KafkaProducerService } from './kafka-producer.service';
-import { KAFKA_OPTIONS } from './kafka.constants';
 
 export interface KafkaModuleAsyncOptions
   extends Pick<ModuleMetadata, 'imports'> {

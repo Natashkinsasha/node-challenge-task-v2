@@ -27,12 +27,13 @@ describe('TokenPriceTickDao (integration)', () => {
 
     const chainId = randomUUID();
     const tokenId = randomUUID();
+    const logoId = randomUUID();
     const source = 'coingecko';
     const ts = new Date('2024-01-01T00:00:00.000Z');
 
     await seed(db, {
       chains: schema.chainTable,
-      tokens: schema.tokenTable,
+      token_logos: schema.tokenLogoTable,
     }).refine((f) => {
       return {
         chains: {
@@ -41,24 +42,27 @@ describe('TokenPriceTickDao (integration)', () => {
             id: f.valuesFromArray({ values: [chainId] }),
           },
         },
-        tokens: {
+        token_logos: {
           count: 1,
           columns: {
-            id: f.valuesFromArray({ values: [tokenId] }),
-            chainId: f.valuesFromArray({ values: [chainId] }),
-            address: f.valuesFromArray({
-              values: ['0x0000000000000000000000000000000000000000'],
-            }),
-            symbol: f.valuesFromArray({ values: ['ETH'] }),
-            name: f.valuesFromArray({ values: ['Ether'] }),
-            decimals: f.valuesFromArray({ values: [18] }),
-            isNative: f.valuesFromArray({ values: [true] }),
-            isProtected: f.valuesFromArray({ values: [false] }),
-            lastUpdateAuthor: f.valuesFromArray({ values: ['tester'] }),
-            priority: f.valuesFromArray({ values: [1] }),
+            id: f.valuesFromArray({ values: [logoId] }),
           },
         },
       };
+    });
+
+    await db.insert(schema.tokenTable).values({
+      id: tokenId,
+      chainId,
+      logoId,
+      address: '0x0000000000000000000000000000000000000000',
+      symbol: 'ETH',
+      name: 'Ether',
+      decimals: 18,
+      isNative: true,
+      isProtected: false,
+      lastUpdateAuthor: 'tester',
+      priority: 1,
     });
 
     await db

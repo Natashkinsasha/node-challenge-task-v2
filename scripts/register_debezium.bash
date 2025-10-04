@@ -8,7 +8,7 @@ curl -s -X PUT http://localhost:8083/connectors/pg-outbox/config \
     "database.port": "5432",
     "database.user": "postgres",
     "database.password": "postgres",
-    "database.dbname": "tokens",
+    "database.dbname": "nct-localhost",
 
 
 

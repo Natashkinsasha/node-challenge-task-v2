@@ -47,7 +47,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tokens
+      POSTGRES_DB: nct-localhost
     command:
       - postgres
       - "-c"
@@ -60,7 +60,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d tokens"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nct-localhost"]
       interval: 5s
       timeout: 5s
       retries: 20

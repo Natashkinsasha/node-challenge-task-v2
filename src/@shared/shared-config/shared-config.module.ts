@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['./env/.env'],
+      envFilePath: ['./env/.env', `./env/.env.${process.env['NODE_ENV']}`],
     }),
   ],
   exports: [ConfigModule],

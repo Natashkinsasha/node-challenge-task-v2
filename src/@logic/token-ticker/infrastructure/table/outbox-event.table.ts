@@ -1,4 +1,4 @@
-import {jsonb, pgTable, text, timestamp, uuid} from 'drizzle-orm/pg-core';
+import { jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const outboxEventTable = pgTable('outbox_event', {
   // Unique identifier of the event (UUID).
