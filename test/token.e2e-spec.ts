@@ -12,6 +12,10 @@ describe('Token E2E (POST /api/v1/tokens/)', () => {
     app = await AppFixture.create();
   }, 180_000);
 
+  beforeEach(async () => {
+    await app.dropAllAndMigrate();
+  });
+
   afterAll(async () => {
     await app?.close();
   }, 60_000);
@@ -20,7 +24,7 @@ describe('Token E2E (POST /api/v1/tokens/)', () => {
     const server = app.getHttpServer();
 
     const chainId = randomUUID();
-    const data = {
+    const chainData = {
       id: chainId,
       debridgeId: 65001,
       name: 'Test Chain',
@@ -29,13 +33,28 @@ describe('Token E2E (POST /api/v1/tokens/)', () => {
     const [chain] = await app
       .getDb()
       .insert(schema.chainTable)
-      .values(data)
+      .values({
+        id: chainId,
+        debridgeId: 65001,
+        name: 'Test Chain',
+        isEnabled: true,
+      })
       .onConflictDoUpdate({
         target: tables.chainTable.debridgeId,
         set: {
-          name: data.name,
-          isEnabled: data.isEnabled,
+          name: chainData.name,
+          isEnabled: chainData.isEnabled,
         },
+      })
+      .returning();
+
+    const [logo] = await app
+      .getDb()
+      .insert(schema.tokenLogoTable)
+      .values({
+        bigRelativePath: '/logos/test-big.png',
+        smallRelativePath: '/logos/test-small.png',
+        thumbRelativePath: '/logos/test-thumb.png',
       })
       .returning();
 
@@ -44,6 +63,7 @@ describe('Token E2E (POST /api/v1/tokens/)', () => {
     const payload = {
       address,
       chainId: chain.id,
+      logoId: logo.id,
       symbol: 'TST',
       name: 'Test Token',
       decimals: 18,

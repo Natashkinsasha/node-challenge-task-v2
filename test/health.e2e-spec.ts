@@ -2,12 +2,16 @@ import * as request from 'supertest';
 
 import { AppFixture } from './fixture/app.fixture';
 
-describe.skip('Health E2E (GET /health)', () => {
+describe('Health E2E (GET /health)', () => {
   let app: AppFixture;
 
   beforeAll(async () => {
     app = await AppFixture.create();
   }, 60000);
+
+  beforeEach(async () => {
+    await app.dropAllAndMigrate();
+  });
 
   afterAll(async () => {
     await app?.close();

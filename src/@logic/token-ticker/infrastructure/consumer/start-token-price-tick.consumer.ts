@@ -38,7 +38,6 @@ export class StartTokenPriceTickConsumer extends BaseKafkaConsumer {
   }
 
   public async handle(payload: EachMessagePayload): Promise<void> {
-    console.log(payload);
     const message = this.parse(payload.message);
     const { tokenId } = message;
     const jobId = `token-price-trick-${tokenId}`;

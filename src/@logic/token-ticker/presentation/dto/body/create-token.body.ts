@@ -5,6 +5,7 @@ import { insertTokenSchema } from '../../../infrastructure/model/insert-token';
 const createTokenSchema = insertTokenSchema.pick({
   address: true,
   chainId: true,
+  logoId: true,
   symbol: true,
   name: true,
   decimals: true,

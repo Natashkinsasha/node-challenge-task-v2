@@ -9,13 +9,14 @@ import { TransactionalAdapterDrizzleOrm } from '@nestjs-cls/transactional-adapte
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ClsModule } from 'nestjs-cls';
 
+import * as tables from '../../@logic/token-ticker/infrastructure/table';
 import * as schema from '../../@logic/token-ticker/infrastructure/table';
 import { AppDrizzleTransactionHost } from '../../@shared/shared-cls/app-drizzle-transaction-host';
 import { PostgresFixture } from './postgres-fixture';
 
 export class TestingModuleWithDbFixture {
   private postgresFixture?: PostgresFixture;
-  private db?: NodePgDatabase;
+  private db?: NodePgDatabase<typeof tables>;
   private module?: TestingModule;
 
   private constructor(private readonly providers: Array<Provider>) {}
