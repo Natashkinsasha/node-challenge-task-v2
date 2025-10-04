@@ -8,6 +8,8 @@ volumes:
   postgres-data:
   pgadmin-data:
   redis-data:
+  connect-plugins:
+  connect-data:
 
 services:
   zookeeper:
@@ -35,7 +37,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-    depends_on: [zookeeper]
+    depends_on:
+      - zookeeper
     networks: [node-challenge-task]
 
   postgres:
@@ -60,7 +63,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres -d tokens"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
     networks: [node-challenge-task]
 
   pgadmin:
@@ -71,7 +74,9 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: "False"
     ports: ["8080:80"]
-    depends_on: [postgres]
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks: [node-challenge-task]
@@ -82,7 +87,8 @@ services:
     ports: ["9000:9000"]
     environment:
       KAFKA_BROKERCONNECT: kafka:29092
-    depends_on: [kafka]
+    depends_on:
+      - kafka
     networks: [node-challenge-task]
 
   redis:
@@ -96,7 +102,7 @@ services:
   connect:
     image: debezium/connect:2.5
     hostname: connect
-    ports: [ "8083:8083" ]
+    ports: ["8083:8083"]
     environment:
       BOOTSTRAP_SERVERS: kafka:29092
       GROUP_ID: connect-cluster
@@ -110,14 +116,23 @@ services:
       CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_PLUGIN_PATH: /kafka/connect
-    depends_on: [ kafka, postgres ]
+      CONNECT_PLUGIN_PATH: /kafka/connect,/kafka/connectors
+
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8083/connectors > /dev/null || exit 1"]
       interval: 5s
       timeout: 5s
-      retries: 30
+      retries: 40
+    volumes:
+      - connect-plugins:/kafka/connect
+      - connect-data:/kafka/data
     networks: [node-challenge-task]
+
 
 
 

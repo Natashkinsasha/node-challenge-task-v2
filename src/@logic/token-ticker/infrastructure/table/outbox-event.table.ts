@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {jsonb, pgTable, text, timestamp, uuid} from 'drizzle-orm/pg-core';
 
 export const outboxEventTable = pgTable('outbox_event', {
   // Unique identifier of the event (UUID).
@@ -22,11 +22,11 @@ export const outboxEventTable = pgTable('outbox_event', {
 
   // Main event payload (JSON body).
   // Will be mapped into Kafka → message.value.
-  payload: text('payload').notNull(),
+  payload: jsonb('payload').notNull(),
 
   // Additional metadata (e.g. traceId, correlationId).
   // Will be mapped into Kafka → message.headers.
-  headers: text('headers').notNull().default('{}'),
+  headers: jsonb('headers').notNull().default('{}'),
 
   // Event creation timestamp.
   // The Outbox Router will map this into Kafka message timestamp.

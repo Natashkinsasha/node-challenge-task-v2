@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { cleanupOpenApiDoc } from 'nestjs-zod';
@@ -16,7 +17,8 @@ async function bootstrap() {
   logger.log('Starting Token Price Service...');
   const app = await createApp();
   setupSwagger(app);
-  await app.listen({ port: 3000, host: '0.0.0.0' });
+  const configService = app.get<ConfigService>(ConfigService);
+  await app.listen({ port: configService.getOrThrow('PORT'), host: '0.0.0.0' });
   logger.log('Service is running on port 3000');
 }
 

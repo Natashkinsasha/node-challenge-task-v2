@@ -16,7 +16,6 @@ export class TokenRepository {
   @Transaction()
   public async upsert(data: InsertToken) {
     const token = await this.tokenDao.upsert(data);
-    console.log(token);
     if (token.isInserted) {
       await this.eventService.send<CreateTokenPayload>({
         aggregateType: 'token',

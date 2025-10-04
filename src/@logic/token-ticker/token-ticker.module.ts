@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 
 import { JobModule } from '../../@lib/job/src';
 import { SharedClsModule } from '../../@shared/shared-cls/shared-cls.module';
-import { SharedDrizzlePgModule } from '../../@shared/shared-drizzle-pg/shared-drizzle-pg.module';
 import { SharedJobModule } from '../../@shared/shared-job';
 import { SharedJobBoardModule } from '../../@shared/shared-job-board';
 import { SharedKafkaModule } from '../../@shared/shared-kafka';
@@ -26,7 +25,6 @@ import { TokenController } from './presentation/controller/token.controller';
   imports: [
     SharedZodHttpModule,
     SharedClsModule,
-    SharedDrizzlePgModule,
     SharedJobModule,
     SharedJobBoardModule,
     SharedKafkaModule,

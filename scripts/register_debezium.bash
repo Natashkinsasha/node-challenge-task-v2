@@ -10,9 +10,12 @@ curl -s -X PUT http://localhost:8083/connectors/pg-outbox/config \
     "database.password": "postgres",
     "database.dbname": "tokens",
 
+
+
     "plugin.name": "pgoutput",
     "slot.name": "outbox_slot",
     "publication.name": "dbz_outbox_publication",
+    "publication.autocreate.mode": "filtered",
 
     "topic.prefix": "appdb",
     "table.include.list": "public.outbox_event",
@@ -24,6 +27,7 @@ curl -s -X PUT http://localhost:8083/connectors/pg-outbox/config \
     "transforms.outbox.table.field.timestamp": "created_at",
     "transforms.outbox.route.by.field": "type",
     "transforms.outbox.route.topic.replacement": "${routedByValue}",
+    "transforms.outbox.table.expand.json.payload": "true",
 
     "tombstones.on.delete": "false",
     "include.schema.changes": "false",

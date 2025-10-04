@@ -33,9 +33,7 @@ export class StartTokenPriceTickConsumer extends BaseKafkaConsumer {
 
   protected parse(message: EachMessagePayload['message']): CreateTokenPayload {
     const raw = message.value?.toString() ?? '{}';
-    console.log(raw);
     const json = JSON.parse(raw);
-    console.log({ json });
     return schemaCreateTokenPayload.parse(json);
   }
 
@@ -44,11 +42,10 @@ export class StartTokenPriceTickConsumer extends BaseKafkaConsumer {
     const message = this.parse(payload.message);
     const { tokenId } = message;
     const jobId = `token-price-trick-${tokenId}`;
-    const job = await this.tokenPriceTrickQueue.add(
+    await this.tokenPriceTrickQueue.add(
       `Token price trick: ${tokenId}`,
       { tokenId },
       { jobId, repeat: { every: 5000, key: jobId } },
     );
-    console.log(job);
   }
 }

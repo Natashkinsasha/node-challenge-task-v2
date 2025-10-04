@@ -12,13 +12,10 @@ import { SharedJobModule } from '../shared-job';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
-          route: '/queues',
+          route: configService.getOrThrow('BULL_BOARD_PATH'),
           username: configService.getOrThrow('BULL_BOARD_USERNAME'),
           password: configService.getOrThrow('BULL_BOARD_PASSWORD'),
-          enabled:
-            configService.getOrThrow('BULL_BOARD_ENABLED') === 'true'
-              ? true
-              : false,
+          enabled: configService.getOrThrow('BULL_BOARD_ENABLED') === 'true',
         };
       },
     }),
