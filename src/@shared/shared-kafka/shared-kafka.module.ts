@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { KafkaModule } from '../../@lib/kafka/src/kafka.module';
+import { KafkaModule } from '../../@lib/kafka/src';
 import { SharedConfigModule } from '../shared-config/shared-config.module';
 
 @Module({

@@ -7,7 +7,7 @@ import {
 import { AppModule } from './app.module';
 
 export async function createApp(): Promise<NestFastifyApplication> {
-  const app = await NestFactory.create<NestFastifyApplication>(
+  return NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
       logger: true,
@@ -16,5 +16,4 @@ export async function createApp(): Promise<NestFastifyApplication> {
       cors: true,
     },
   );
-  return app;
 }
