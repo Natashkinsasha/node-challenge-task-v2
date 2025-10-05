@@ -4,7 +4,7 @@ This document provides instructions on how to run the Token Price Service applic
 
 ## Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js v22
 - Docker and Docker Compose
 
 ## Running with Docker Compose
@@ -23,7 +23,19 @@ docker compose up -d
 npm install
 ```
 
-3. Run the application:
+3. Run database migrations:
+
+```bash
+npm run migration:run
+```
+
+4. Register Debezium connectors:
+
+```bash
+bash scripts/register_debezium.bash
+```
+
+5. Run the application:
 
 ```bash
 npm start
@@ -35,6 +47,12 @@ The integration tests use Testcontainers to spin up PostgreSQL and Kafka in Dock
 
 ```bash
 npm test
+```
+
+End-to-end (E2E) tests are also available:
+
+```bash
+npm run test:e2e
 ```
 
 ## Stopping the Application
@@ -55,11 +73,3 @@ To remove all data volumes:
 docker compose down -v
 ```
 
-## Project Structure
-
-- **src/models/**: Contains the Token and TokenPriceUpdateMessage classes
-- **src/data/**: Contains the database context and seeder
-- **src/services/**: Contains the MockTokenPriceAdapter and TokenPriceUpdateService
-- **src/kafka/**: Contains the TokenPriceProducer
-- **src/migrations/**: Contains database migrations
-- **src/test/**: Contains integration tests using Testcontainers

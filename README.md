@@ -1,41 +1,31 @@
-# Token Price Service Challenge
+## Изменения относительно ветки main (refactor-alex → main)
 
-This repository contains a Node.js challenge task implementing a Token Price Service with intentional anti-patterns and bugs for educational purposes.
+Основной фокус рефакторинга — сделать сервис легко горизонтально масштабируемым (очереди, событийность, повторяемые задачи, отсутствие узких мест в стейте процесса).
+При этом намеренно оставлены отдельные технические шероховатости — “контролируемые швы”, которые демонстрируют инженерные компромиссы и служат точками роста для последующей доработки.
 
-## Project Structure
+Ниже — сжатое описание того, что было сделано в текущей ветке `refactor-alex` по сравнению с `main`.
 
-The repository is organized as follows:
+* __Переход на новую ORM__
+  - Заменили TypeORM на Drizzle ORM, упростили модели и миграции, ускорили локальный старт и тесты.
 
-- **src/**: The main project directory containing:
-  - **data/**: Database context and seeder
-  - **kafka/**: Kafka producer service
-  - **migrations/**: Database migrations
-  - **models/**: Token and message models
-  - **services/**: Price update and mock services
-  - **test/**: Integration tests
+* __Рефакторинг архитектуры тикера цен__
+  - Выделили понятные слои (application/infrastructure/presentation) и разграничили ответственность.
+  - Добавили надёжную доставку событий через outbox-паттерн.
+  - Включили интеграцию с Kafka/Debezium и фоновую обработку задач через очередь.
+  - Добавили Redis + Bull для повторяющихся задач, что позволило горизонтально масштабировать сервис.
 
-## Technology Stack
+* __Инфраструктура и общие модули__
+  - Вынесли общую интеграцию с очередями, Kafka, Redis и конфигурацией в переиспользуемые модули.
+  - Добавили транзакционный контекст (CLS) с поддержкой транзакций через декоратор.
+  - Добавили удобные утилиты для HTTP-валидации и обработки ошибок.
 
-- **Node.js**: JavaScript runtime
-- **TypeScript**: For type safety
-- **Nest.js**: Node.js framework for building efficient and scalable server-side applications
-- **PostgreSQL**: For data storage
-- **TypeORM**: For database interactions
-- **Kafka.js**: For message brokering
-- **Jest**: For testing
-- **Testcontainers**: For integration testing with Docker containers
+* __Обновление приложения__
+  - Упростили точку входа и модуль приложения, привели код к единому стилю.
 
-## Getting Started
+* __Тестирование__
+  - Добавили e2e-тесты для здоровья сервиса и потока тикера, а также фикстуры для них.
+  - Расширили интеграционные тесты, внедрили Testcontainers для изолированного Postgres и подготовили соответствующие фикстуры.
 
-See the [src/README.md](./src/README.md) for detailed instructions on how to run the application and tests.
-
-## Features
-
-- Token price updates with a mock price service
-- Kafka integration for price update messages
-- PostgreSQL database with denormalized structure
-- Integration tests using Testcontainers
-
-## License
-
-This project is for educational purposes only.
+* __DevX и окружения__
+  - Добавили удобные скрипты, окружения для разных профилей и доработали локальную инфраструктуру.
+  - Включили ESLint/Prettier и обновили конфигурацию проекта.

@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { EachMessagePayload } from 'kafkajs';
 
-import { BaseKafkaConsumer } from '../../../../@lib/kafka/src/base-kafka.consumer';
-import { ConsumerOptions } from '../../../../@lib/kafka/src/kafaka.types';
+import { BaseKafkaConsumer } from '../../../../@lib/kafka/src';
+import { ConsumerOptions } from '../../../../@lib/kafka/src';
 import {
   TokenPriceTrickBullHandler,
   TokenPriceTrickBullJobDate,
