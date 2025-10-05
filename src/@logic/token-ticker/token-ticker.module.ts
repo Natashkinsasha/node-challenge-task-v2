@@ -30,6 +30,7 @@ import { TokenController } from './presentation/controller/token.controller';
     SharedKafkaModule,
     JobModule.registerQueue({
       name: TokenPriceTrickBullHandler.getName(),
+      forceDisconnectOnShutdown: true,
     }),
   ],
   providers: [

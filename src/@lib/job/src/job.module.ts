@@ -1,11 +1,12 @@
 import {
-  BullModule, getQueueToken,
+  BullModule,
+  getQueueToken,
   RegisterQueueOptions,
   SharedBullAsyncConfiguration,
 } from '@nestjs/bullmq';
 import type { DynamicModule } from '@nestjs/common';
 import { Module } from '@nestjs/common';
-import {Queue} from "bullmq";
+import { Queue } from 'bullmq';
 
 import { QueueRegistryService } from './queue-registry.service';
 

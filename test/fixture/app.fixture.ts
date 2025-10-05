@@ -1,3 +1,4 @@
+import { ConsoleLogger } from '@nestjs/common';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -72,7 +73,14 @@ export class AppFixture {
       .compile();
 
     const app = moduleRef.createNestApplication<NestFastifyApplication>(
-      new FastifyAdapter(),
+      new FastifyAdapter({
+        logger: true,
+      }),
+      {
+        logger: new ConsoleLogger('AppFixture', {
+          logLevels: ['error', 'warn', 'log', 'debug', 'verbose'],
+        }),
+      },
     );
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
